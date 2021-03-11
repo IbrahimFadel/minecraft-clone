@@ -18,36 +18,18 @@ namespace mc
     enum BlockType
     {
         Air,
+        Grass,
         Stone,
         EndStone,
     };
 
-    static std::map<BlockType, Texture> blockTextures;
+    static const int blockatlasWidth = 96;
+    static const int textureSize = 16;
+    static const int numTexturesInAtlas = blockatlasWidth / textureSize;
 
-    class Block
-    {
-    private:
-        BlockType type = BlockType::Air;
-        glm::vec3 position = glm::vec3(0, 0, 0);
-        glm::mat4 modelMatrix = glm::mat4(1.0);
-
-        GLuint vertexArrayID;
-        mc::VBO vertexBuffer;
-        mc::VBO uvBuffer;
-        mc::VBO indicesBuffer;
-        mc::VBO normalsBuffer;
-
-        void fillBlockTextureMap();
-
-    public:
-        Block();
-        // Block(BlockType type, glm::vec3 position);
-        // void render(const std::unique_ptr<Shader> &shader);
-
-        void setPosition(glm::vec3 transform) { position = transform; };
-        glm::vec3 getPosition() { return position; }
-        BlockType getType() { return type; }
-        void setType(BlockType bType) { type = bType; }
+    static std::map<BlockType, int> blockTextureOffsets = {
+        {BlockType::Grass, 0},
+        {BlockType::Stone, 2},
     };
 
     static float blockSize = 0.3;

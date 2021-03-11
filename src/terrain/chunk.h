@@ -42,10 +42,10 @@ namespace mc
             indices.push_back(i5);
         }
 
-        void addUV(float u, float v)
+        void addUV(glm::vec2 uv)
         {
-            uvCoordinates.push_back(u);
-            uvCoordinates.push_back(v);
+            uvCoordinates.push_back(uv.x);
+            uvCoordinates.push_back(uv.y);
         }
 
         void addNormal(float x, float y, float z)
@@ -65,11 +65,9 @@ namespace mc
 
     private:
         World *world;
-        // BlockType ***blocks;
         BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE] = {BlockType::Air};
-        // BlockType blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE] = {BlockType::Stone};
         Mesh mesh;
-        glm::vec3 position = glm::vec3(0, 0, 0);
+        glm::ivec2 position = glm::ivec2(0, 0);
         glm::mat4 modelMatrix = glm::mat4(1.0);
 
         GLuint vertexArrayID;
@@ -77,23 +75,22 @@ namespace mc
         mc::VBO uvBuffer;
         mc::VBO indicesBuffer;
         mc::VBO normalsBuffer;
-        GLuint skyboxTexture;
 
-        mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
-        mc::Texture tex2 = mc::createTextureFromPath("../assets/endstone.png");
+        mc::Texture blockatlasTexture = mc::createTextureFromPath("../assets/blockatlas.png");
+
+        // mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
+        // mc::Texture tex2 = mc::createTextureFromPath("../assets/endstone.png");
 
     public:
-        Chunk();
-        ~Chunk();
         void update();
         void render(const std::unique_ptr<Shader> &shader);
         void createMesh();
-        int get1DIndexForPosition(glm::vec3 position);
-        glm::vec3 getPosition() { return position; }
+
+        glm::ivec2 getPosition() { return position; }
         BlockType getBlock(glm::ivec3 position) { return blocks[position.x][position.y][position.z]; }
 
         void setBlock(glm::ivec3 position, BlockType bType) { blocks[position.x][position.y][position.z] = bType; }
-        void setPosition(glm::vec3 pos) { position = pos; }
+        void setPosition(glm::ivec2 pos) { position = pos; }
         void setWorld(World *w) { world = w; }
     };
 

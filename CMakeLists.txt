@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7...3.18)
 project(minecraft)
 
-SET(CPP_COMPILE_FLAGS "")
+SET(CPP_COMPILE_FLAGS "-std=c++17")
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(SRC_FILES
     ${SRC_DIR}/main.cpp
@@ -9,8 +9,8 @@ set(SRC_FILES
     ${SRC_DIR}/shader.cpp
     ${SRC_DIR}/texture.cpp
     ${SRC_DIR}/camera.cpp
+    ${SRC_DIR}/player.cpp
 
-    ${SRC_DIR}/terrain/block.cpp
     ${SRC_DIR}/terrain/chunk.cpp
     ${SRC_DIR}/terrain/world.cpp
 

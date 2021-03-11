@@ -26,6 +26,8 @@ using namespace glm;
 
 #include "terrain/world.h"
 
+#include "player.h"
+
 void initGLFW()
 {
     glewExperimental = true;
@@ -196,7 +198,7 @@ int main()
 
     mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
 
-    mc::World world;
+    auto world = std::make_unique<mc::World>();
     // world.generateHeightmap();
     // world.generateChunk(glm::vec3(0, 0, 0));
     // world.generateChunk(glm::vec3(1, 0, 0));
@@ -208,7 +210,7 @@ int main()
     // chunk->createMesh();
     // chunk->setWorld()
 
-    auto camera = std::make_unique<mc::Camera>(window);
+    auto player = std::make_unique<mc::Player>(glm::vec3(0, world->getBlockHeightAtWorldPosition(glm::ivec2(0, 0)) + mc::Player::playerHeight, 0), world, window);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -228,12 +230,13 @@ int main()
         glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        camera->computeMatricesFromInputs();
-
         glUseProgram(programID);
 
-        glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-        glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
+        player->handleMovement();
+        player->updateCameraMatrices();
+
+        glUniformMatrix4fv(projectionID, 1, GL_FALSE, &player->getCamera()->getProjection()[0][0]);
+        glUniformMatrix4fv(viewID, 1, GL_FALSE, &player->getCamera()->getView()[0][0]);
         glUniform3f(lightPositionWorldspaceID, lightPos.x, lightPos.y, lightPos.z);
 
         // glUseProgram(mirrorShader->getProgramID());
@@ -245,71 +248,71 @@ int main()
         // glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
         // glUniform3f(glGetUniformLocation(mirrorShader->getProgramID(), "cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
-        glm::vec3 pos = camera->getPosition();
+        glm::vec3 pos = player->getCamera()->getPosition();
 
         float cx = pos.x / 16;
         cx = cx < 0 ? ceil(abs(cx)) * -1 : floor(cx);
         float cz = pos.z / 16;
         cz = cz < 0 ? ceil(abs(cz)) * -1 : floor(cz);
 
-        glm::ivec3 chunk(cx, 0, cz);
+        glm::ivec2 chunk(cx, cz);
 
-        glm::ivec3 front(cx, 0, cz + 1);
-        glm::ivec3 right(cx + 1, 0, cz);
-        glm::ivec3 back(cx, 0, cz - 1);
-        glm::ivec3 left(cx - 1, 0, cz);
+        glm::ivec2 front(cx, cz + 1);
+        glm::ivec2 right(cx + 1, cz);
+        glm::ivec2 back(cx, cz - 1);
+        glm::ivec2 left(cx - 1, cz);
 
-        glm::ivec3 frontRight(cx + 1, 0, cz + 1);
-        glm::ivec3 frontLeft(cx - 1, 0, cz + 1);
-        glm::ivec3 backRight(cx + 1, 0, cz - 1);
-        glm::ivec3 backLeft(cx - 1, 0, cz - 1);
+        glm::ivec2 frontRight(cx + 1, cz + 1);
+        glm::ivec2 frontLeft(cx - 1, cz + 1);
+        glm::ivec2 backRight(cx + 1, cz - 1);
+        glm::ivec2 backLeft(cx - 1, cz - 1);
 
-        if (!world.getChunk(chunk))
+        if (!world->getChunk(chunk))
         {
-            world.generateChunk(chunk);
+            world->generateChunk(chunk);
         }
-        if (!world.getChunk(front))
+        if (!world->getChunk(front))
         {
-            world.generateChunk(front);
+            world->generateChunk(front);
         }
-        if (!world.getChunk(right))
+        if (!world->getChunk(right))
         {
-            world.generateChunk(right);
+            world->generateChunk(right);
         }
-        if (!world.getChunk(back))
+        if (!world->getChunk(back))
         {
-            world.generateChunk(back);
+            world->generateChunk(back);
         }
-        if (!world.getChunk(left))
+        if (!world->getChunk(left))
         {
-            world.generateChunk(left);
+            world->generateChunk(left);
         }
-        if (!world.getChunk(frontRight))
+        if (!world->getChunk(frontRight))
         {
-            world.generateChunk(frontRight);
+            world->generateChunk(frontRight);
         }
-        if (!world.getChunk(frontLeft))
+        if (!world->getChunk(frontLeft))
         {
-            world.generateChunk(frontLeft);
+            world->generateChunk(frontLeft);
         }
-        if (!world.getChunk(backRight))
+        if (!world->getChunk(backRight))
         {
-            world.generateChunk(backRight);
+            world->generateChunk(backRight);
         }
-        if (!world.getChunk(backLeft))
+        if (!world->getChunk(backLeft))
         {
-            world.generateChunk(backLeft);
+            world->generateChunk(backLeft);
         }
 
-        world.render(shader);
+        world->render(shader);
         // chunk->render(shader);
 
         glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
         glUseProgram(skyboxShader->getProgramID());
-        auto view = glm::mat4(glm::mat3(camera->getView())); // remove translation from the view matrix
+        auto view = glm::mat4(glm::mat3(player->getCamera()->getView())); // remove translation from the view matrix
         GLuint skyboxProjID = glGetUniformLocation(skyboxShader->getProgramID(), "projection");
         GLuint skyboxViewID = glGetUniformLocation(skyboxShader->getProgramID(), "view");
-        glUniformMatrix4fv(skyboxProjID, 1, GL_FALSE, &camera->getProjection()[0][0]);
+        glUniformMatrix4fv(skyboxProjID, 1, GL_FALSE, &player->getCamera()->getProjection()[0][0]);
         glUniformMatrix4fv(skyboxViewID, 1, GL_FALSE, &view[0][0]);
         // skybox cube
         glBindVertexArray(skyboxVAO);

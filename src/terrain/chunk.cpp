@@ -2,40 +2,6 @@
 
 using namespace mc;
 
-// Chunk::Chunk() : blocks(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE, Block()){
-Chunk::Chunk(){
-
-    // blocks = new BlockType[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
-
-    // blocks = (BlockType *)malloc(sizeof(BlockType) * CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
-    // blocks = new Block **[CHUNK_SIZE];
-    // for (int i = 0; i < CHUNK_SIZE; i++)
-    // {
-    //     blocks[i] = new Block *[CHUNK_SIZE];
-    //     for (int j = 0; j < CHUNK_SIZE; j++)
-    //     {
-    //         blocks[i][j] = new Block[CHUNK_SIZE];
-    //         for (int k = 0; k < CHUNK_SIZE; k++)
-    //         {
-    //             blocks[i][j][k] = Block();
-    //         }
-    //     }
-    // }
-    // blocks = new BlockType[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE];
-
-    // blocks = blockAllocator.allocate(CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
-    // blockAllocator.construct(blocks);
-    // blocks = (Block *)malloc(sizeof(Block) * (CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE));
-    // blocks->Block();
-};
-
-Chunk::~Chunk()
-{
-    // delete blocks;
-    // blockAllocator.destroy(blocks);
-    // blockAllocator.deallocate(blocks, CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE);
-}
-
 void Chunk::createMesh()
 {
     int size = 0;
@@ -66,25 +32,54 @@ void Chunk::createMesh()
                     float ny = iy - 0.5f;
                     float nz = iz - 0.5f;
 
+                    int blockatlasOffset = blockTextureOffsets[value];
+
+                    float u1 = (double)1 / numTexturesInAtlas * blockatlasOffset;
+                    float u2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 1);
+
+                    glm::vec2 uvBottomLeft(u1, 0);
+                    glm::vec2 uvBottomRight(u2, 0);
+                    glm::vec2 uvTopLeft(u1, 1);
+                    glm::vec2 uvTopRight(u2, 1);
+
                     //Top face
                     if (y == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(x, y + 1, z)) == BlockType::Air)
                     {
-                        mesh.indices.push_back(size + 1); // 1 5 9
-                        mesh.indices.push_back(size);     // 0 4 8
-                        mesh.indices.push_back(size + 2); // 2 6 10
-                        mesh.indices.push_back(size + 1); // 1 5 9
-                        mesh.indices.push_back(size + 2); // 2 6 10
-                        mesh.indices.push_back(size + 3); // 3 7 11
+                        mesh.indices.push_back(size + 1); // top left
+                        mesh.indices.push_back(size);     // bottom left
+                        mesh.indices.push_back(size + 2); // bottom right
+
+                        mesh.indices.push_back(size + 1); // top left
+                        mesh.indices.push_back(size + 2); // bottom right
+                        mesh.indices.push_back(size + 3); // top right
 
                         mesh.addVertex(nx, py, pz); // front top left
                         mesh.addVertex(nx, py, nz); // back top left
                         mesh.addVertex(px, py, pz); // front top right
                         mesh.addVertex(px, py, nz); // back top right
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        if (value == BlockType::Grass)
+                        {
+                            float grassU1 = (double)1 / numTexturesInAtlas * (blockatlasOffset + 1);
+                            float grassU2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 2);
+
+                            glm::vec2 grassUvBottomLeft(grassU1, 0);
+                            glm::vec2 grassUvBottomRight(grassU2, 0);
+                            glm::vec2 grassUvTopLeft(grassU1, 1);
+                            glm::vec2 grassUvTopRight(grassU2, 1);
+
+                            mesh.addUV(grassUvBottomLeft);
+                            mesh.addUV(grassUvBottomRight);
+                            mesh.addUV(grassUvTopLeft);
+                            mesh.addUV(grassUvTopRight);
+                        }
+                        else
+                        {
+                            mesh.addUV(uvBottomLeft);
+                            mesh.addUV(uvTopLeft);
+                            mesh.addUV(uvBottomRight);
+                            mesh.addUV(uvTopRight);
+                        }
 
                         mesh.addNormal(0.0, 1.0, 0.0);
                         mesh.addNormal(0.0, 1.0, 0.0);
@@ -109,10 +104,10 @@ void Chunk::createMesh()
                         mesh.addVertex(nx, ny, pz);
                         mesh.addVertex(nx, ny, nz);
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        mesh.addUV(uvBottomLeft);
+                        mesh.addUV(uvTopLeft);
+                        mesh.addUV(uvBottomRight);
+                        mesh.addUV(uvTopRight);
 
                         mesh.addNormal(0.0, -1.0, 0.0);
                         mesh.addNormal(0.0, -1.0, 0.0);
@@ -136,10 +131,10 @@ void Chunk::createMesh()
                         mesh.addVertex(px, ny, pz);
                         mesh.addVertex(px, py, pz);
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        mesh.addUV(uvBottomLeft);
+                        mesh.addUV(uvTopLeft);
+                        mesh.addUV(uvBottomRight);
+                        mesh.addUV(uvTopRight);
 
                         mesh.addNormal(0.0, 0.0, 1.0);
                         mesh.addNormal(0.0, 0.0, 1.0);
@@ -164,10 +159,10 @@ void Chunk::createMesh()
                         mesh.addVertex(nx, ny, nz);
                         mesh.addVertex(nx, py, nz);
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        mesh.addUV(uvBottomLeft);
+                        mesh.addUV(uvTopLeft);
+                        mesh.addUV(uvBottomRight);
+                        mesh.addUV(uvTopRight);
 
                         mesh.addNormal(0.0, 0.0, -1.0);
                         mesh.addNormal(0.0, 0.0, -1.0);
@@ -192,10 +187,10 @@ void Chunk::createMesh()
                         mesh.addVertex(px, ny, nz);
                         mesh.addVertex(px, py, nz);
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        mesh.addUV(uvBottomLeft);
+                        mesh.addUV(uvTopLeft);
+                        mesh.addUV(uvBottomRight);
+                        mesh.addUV(uvTopRight);
 
                         mesh.addNormal(1.0, 0.0, 0.0);
                         mesh.addNormal(1.0, 0.0, 0.0);
@@ -220,10 +215,10 @@ void Chunk::createMesh()
                         mesh.addVertex(nx, ny, pz);
                         mesh.addVertex(nx, py, pz);
 
-                        mesh.addUV(0, 0);
-                        mesh.addUV(1, 0);
-                        mesh.addUV(0, 1);
-                        mesh.addUV(1, 1);
+                        mesh.addUV(uvBottomLeft);
+                        mesh.addUV(uvTopLeft);
+                        mesh.addUV(uvBottomRight);
+                        mesh.addUV(uvTopRight);
 
                         mesh.addNormal(-1.0, 0.0, 0.0);
                         mesh.addNormal(-1.0, 0.0, 0.0);
@@ -263,12 +258,12 @@ void Chunk::render(const std::unique_ptr<Shader> &shader)
     GLuint modelID = glGetUniformLocation(shader->getProgramID(), "model");
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex.handle);
+    glBindTexture(GL_TEXTURE_2D, blockatlasTexture.handle);
     glUniform1i(textureID, 0);
 
     modelMatrix[3][0] = position.x * CHUNK_SIZE;
-    modelMatrix[3][1] = position.y * CHUNK_SIZE;
-    modelMatrix[3][2] = position.z * CHUNK_SIZE;
+    // modelMatrix[3][1] = position.y * CHUNK_SIZE;
+    modelMatrix[3][2] = position.y * CHUNK_SIZE;
 
     glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
 
@@ -292,107 +287,3 @@ void Chunk::render(const std::unique_ptr<Shader> &shader)
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
 }
-
-// void Chunk::setBlock(glm::ivec3 position, BlockType bType)
-// {
-//     blocks[position.x][position.y][position.z] = bType;
-//     // int newIndex = get1DIndexForPosition(position);
-//     // blocks[newIndex] = bType;
-// }
-
-// void Chunk::addCubeToMesh(float x, float y, float z)
-// {
-//     auto factor = mesh.vertices.size() / 3;
-
-//     mesh.addVertex(x - blockSize, y - blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y - blockSize, z + blockSize);
-//     mesh.addVertex(x - blockSize, y + blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z + blockSize);
-
-//     mesh.addVertex(x + blockSize, y - blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z - blockSize);
-
-//     mesh.addVertex(x + blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x - blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z - blockSize);
-//     mesh.addVertex(x - blockSize, y + blockSize, z - blockSize);
-
-//     mesh.addVertex(x - blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x - blockSize, y - blockSize, z + blockSize);
-//     mesh.addVertex(x - blockSize, y + blockSize, z - blockSize);
-//     mesh.addVertex(x - blockSize, y + blockSize, z + blockSize);
-
-//     mesh.addVertex(x - blockSize, y + blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z + blockSize);
-//     mesh.addVertex(x - blockSize, y + blockSize, z - blockSize);
-//     mesh.addVertex(x + blockSize, y + blockSize, z - blockSize);
-
-//     mesh.addVertex(x - blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x + blockSize, y - blockSize, z - blockSize);
-//     mesh.addVertex(x - blockSize, y - blockSize, z + blockSize);
-//     mesh.addVertex(x + blockSize, y - blockSize, z + blockSize);
-
-//     mesh.addIndices(factor + 0, factor + 1, factor + 2, factor + 2, factor + 1, factor + 3);
-//     mesh.addIndices(factor + 4, factor + 5, factor + 6, factor + 6, factor + 5, factor + 7);
-//     mesh.addIndices(factor + 8, factor + 9, factor + 10, factor + 10, factor + 9, factor + 11);
-//     mesh.addIndices(factor + 12, factor + 13, factor + 14, factor + 14, factor + 13, factor + 15);
-//     mesh.addIndices(factor + 16, factor + 17, factor + 18, factor + 18, factor + 17, factor + 19);
-//     mesh.addIndices(factor + 20, factor + 21, factor + 22, factor + 22, factor + 21, factor + 23);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addUV(0, 0);
-//     mesh.addUV(1, 0);
-//     mesh.addUV(0, 1);
-//     mesh.addUV(1, 1);
-
-//     mesh.addNormal(0.0, 0.0, 1.0);
-//     mesh.addNormal(0.0, 0.0, 1.0);
-//     mesh.addNormal(0.0, 0.0, 1.0);
-//     mesh.addNormal(0.0, 0.0, 1.0); // Front Side
-//     mesh.addNormal(1.0, 0.0, 0.0);
-//     mesh.addNormal(1.0, 0.0, 0.0);
-//     mesh.addNormal(1.0, 0.0, 0.0);
-//     mesh.addNormal(1.0, 0.0, 0.0); // Right Side
-//     mesh.addNormal(0.0, 0.0, -1.0);
-//     mesh.addNormal(0.0, 0.0, -1.0);
-//     mesh.addNormal(0.0, 0.0, -1.0);
-//     mesh.addNormal(0.0, 0.0, -1.0); // Back Side
-//     mesh.addNormal(-1.0, 0.0, 0.0);
-//     mesh.addNormal(-1.0, 0.0, 0.0);
-//     mesh.addNormal(-1.0, 0.0, 0.0);
-//     mesh.addNormal(-1.0, 0.0, 0.0); // Left Side
-//     mesh.addNormal(0.0, 1.0, 0.0);
-//     mesh.addNormal(0.0, 1.0, 0.0);
-//     mesh.addNormal(0.0, 1.0, 0.0);
-//     mesh.addNormal(0.0, 1.0, 0.0); // Top Side
-//     mesh.addNormal(0.0, -1.0, 0.0);
-//     mesh.addNormal(0.0, -1.0, 0.0);
-//     mesh.addNormal(0.0, -1.0, 0.0);
-//     mesh.addNormal(0.0, -1.0, 0.0); // Bottom side
-// }

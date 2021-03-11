@@ -9,6 +9,8 @@ using namespace glm;
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
+#include <unordered_map>
 
 namespace mc
 {
@@ -17,6 +19,21 @@ namespace mc
 
 #include "chunk.h"
 #include "FastNoiseLite.h"
+
+struct KeyFuncs
+{
+    size_t operator()(const ivec2 &k) const
+    {
+        return std::hash<int>()(k.x) ^ std::hash<int>()(k.y);
+    }
+
+    bool operator()(const ivec2 &a, const ivec2 &b) const
+    {
+        return a.x == b.x && a.y == b.y;
+    }
+};
+
+// typedef std::unordered_map<glm::ivec2, int, KeyFuncs, KeyFuncs> MyMap;
 
 namespace mc
 {
@@ -30,23 +47,29 @@ namespace mc
         static const int WIDTH = 256;
         static const int HEIGHT = 256;
 
-        // Chunk *chunks;
-        std::vector<Chunk *> chunks;
-        // std::map<glm::vec3, Chunk *> chunks;
+        std::unordered_map<glm::ivec2, Chunk *, KeyFuncs, KeyFuncs> chunks;
+        // std::vector<Chunk *> chunks;
 
-        // Noise1234 *noise = new Noise1234();
         FastNoiseLite noise;
-        // FastNoiseSIMD *myNoise = FastNoiseSIMD::NewFastNoiseSIMD();
+
+        double maxHeight = 32 * 2.0;
+        double minHeight = 0.0;
 
         void generateSeed();
-        double round(double d);
 
     public:
         World();
-        void generateHeightmap();
-        void generateChunk(glm::vec3 position);
+
+        int getBlockHeightAtWorldPosition(glm::ivec2 position)
+        {
+            float y = noise.GetNoise((float)position.x, (float)position.y);
+            int finalY = (int)(((y + 1) / 2.0) * (maxHeight - minHeight));
+            return finalY;
+        }
+
+        void generateChunk(glm::ivec2 position);
         void render(const std::unique_ptr<Shader> &shader);
-        Chunk *getChunk(glm::vec3 position);
+        Chunk *getChunk(glm::ivec2 position);
     };
 
 }; // namespace mc

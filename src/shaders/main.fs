@@ -67,5 +67,7 @@ void main(){
 	// color.rgb = texture( textureSampler, UV ).rgb;
     color.a = 1.0;
 
+	// color.r = positionWorldspace.z / 2;
+
 	// color.rgb = normalize(positionWorldspace);
 }
