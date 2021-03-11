@@ -192,29 +192,32 @@ int main()
     GLuint viewID = glGetUniformLocation(mirrorShader->getProgramID(), "view");
     GLuint lightPositionWorldspaceID = glGetUniformLocation(mirrorShader->getProgramID(), "lightPositionWorldspace");
 
-    glm::vec3 lightPos = glm::vec3(4, 32, 4);
+    glm::vec3 lightPos = glm::vec3(0, 40, 0);
 
     mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
 
-    // mc::World world;
+    mc::World world;
     // world.generateHeightmap();
     // world.generateChunk(glm::vec3(0, 0, 0));
+    // world.generateChunk(glm::vec3(1, 0, 0));
+    // world.generateChunk(glm::vec3(0, 0, 1));
+    // world.generateChunk(glm::vec3(1, 0, 1));
 
-    mc::Chunk *chunk = new mc::Chunk();
-    chunk->setPosition(vec3(0, 0, 0));
-    chunk->createMesh();
+    // mc::Chunk *chunk = new mc::Chunk();
+    // chunk->setPosition(vec3(0, 0, 0));
+    // chunk->createMesh();
     // chunk->setWorld()
 
     auto camera = std::make_unique<mc::Camera>(window);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    // glDebugMessageCallback(MessageCallback, 0);
 
     bool wireframe = false;
     glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
@@ -233,16 +236,73 @@ int main()
         glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
         glUniform3f(lightPositionWorldspaceID, lightPos.x, lightPos.y, lightPos.z);
 
-        glUseProgram(mirrorShader->getProgramID());
+        // glUseProgram(mirrorShader->getProgramID());
 
-        GLuint projectionID = glGetUniformLocation(programID, "projection");
-        GLuint viewID = glGetUniformLocation(programID, "view");
+        // GLuint projectionID = glGetUniformLocation(programID, "projection");
+        // GLuint viewID = glGetUniformLocation(programID, "view");
 
-        glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-        glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
-        glUniform3f(glGetUniformLocation(mirrorShader->getProgramID(), "cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+        // glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
+        // glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
+        // glUniform3f(glGetUniformLocation(mirrorShader->getProgramID(), "cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 
-        chunk->render(shader);
+        glm::vec3 pos = camera->getPosition();
+
+        float cx = pos.x / 16;
+        cx = cx < 0 ? ceil(abs(cx)) * -1 : floor(cx);
+        float cz = pos.z / 16;
+        cz = cz < 0 ? ceil(abs(cz)) * -1 : floor(cz);
+
+        glm::ivec3 chunk(cx, 0, cz);
+
+        glm::ivec3 front(cx, 0, cz + 1);
+        glm::ivec3 right(cx + 1, 0, cz);
+        glm::ivec3 back(cx, 0, cz - 1);
+        glm::ivec3 left(cx - 1, 0, cz);
+
+        glm::ivec3 frontRight(cx + 1, 0, cz + 1);
+        glm::ivec3 frontLeft(cx - 1, 0, cz + 1);
+        glm::ivec3 backRight(cx + 1, 0, cz - 1);
+        glm::ivec3 backLeft(cx - 1, 0, cz - 1);
+
+        if (!world.getChunk(chunk))
+        {
+            world.generateChunk(chunk);
+        }
+        if (!world.getChunk(front))
+        {
+            world.generateChunk(front);
+        }
+        if (!world.getChunk(right))
+        {
+            world.generateChunk(right);
+        }
+        if (!world.getChunk(back))
+        {
+            world.generateChunk(back);
+        }
+        if (!world.getChunk(left))
+        {
+            world.generateChunk(left);
+        }
+        if (!world.getChunk(frontRight))
+        {
+            world.generateChunk(frontRight);
+        }
+        if (!world.getChunk(frontLeft))
+        {
+            world.generateChunk(frontLeft);
+        }
+        if (!world.getChunk(backRight))
+        {
+            world.generateChunk(backRight);
+        }
+        if (!world.getChunk(backLeft))
+        {
+            world.generateChunk(backLeft);
+        }
+
+        world.render(shader);
+        // chunk->render(shader);
 
         glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
         glUseProgram(skyboxShader->getProgramID());

@@ -18,10 +18,10 @@ set(SRC_FILES
     ${SRC_DIR}/rendering/vao.cpp
 )
 
-add_library(noise 
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.h
-)
+# add_library(noise 
+#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.cpp
+#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.h
+# )
 
 # add_library(fastNoiseLite
 #     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseLite/FastNoiseLite.h
@@ -56,10 +56,9 @@ add_library(noise
 add_executable(minecraft ${SRC_FILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/stb)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/noise)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseLite)
 # include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD)
 
-target_link_libraries(minecraft glfw pthread GLEW GLU GL rt Xrandr Xxf86vm Xi Xinerama X11 noise)
+target_link_libraries(minecraft glfw pthread GLEW GLU GL rt Xrandr Xxf86vm Xi Xinerama X11)
 
 target_compile_options(minecraft PRIVATE "${CPP_COMPILE_FLAGS}")

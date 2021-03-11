@@ -3,7 +3,6 @@
 
 #include <glm/glm.hpp>
 using namespace glm;
-#include <noise1234.h>
 #include <stb_image_write.h>
 
 #include <vector>
@@ -40,7 +39,6 @@ namespace mc
         // FastNoiseSIMD *myNoise = FastNoiseSIMD::NewFastNoiseSIMD();
 
         void generateSeed();
-        float turbulence(vec2 Q);
         double round(double d);
 
     public:

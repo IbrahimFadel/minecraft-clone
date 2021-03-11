@@ -26,13 +26,13 @@ namespace mc
     private:
         std::unique_ptr<mc::Window> &window;
 
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)window->getWidth() / (float)window->getHeight(), 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(65.0f), (float)window->getWidth() / (float)window->getHeight(), 0.1f, 1000.0f);
         glm::mat4 view = glm::lookAt(
             glm::vec3(4, 1, 5),
             glm::vec3(0, 0, 0),
             glm::vec3(0, 1, 0));
 
-        glm::vec3 position = glm::vec3(0, 0, 0);
+        glm::vec3 position = glm::vec3(0, 32, 0);
         float horizontalAngle = 3.14;
         float verticalAngle = 0.0;
         float initialFOV = 45.0;

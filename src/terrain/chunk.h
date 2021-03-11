@@ -11,6 +11,7 @@ namespace mc
 
 #include "world.h"
 #include <vector>
+#include <algorithm>
 using std::vector;
 
 namespace mc
@@ -22,7 +23,7 @@ namespace mc
     struct Mesh
     {
         vector<float> vertices;
-        vector<unsigned short> indices;
+        vector<unsigned int> indices;
         vector<float> uvCoordinates;
         vector<float> normals;
 
@@ -60,13 +61,13 @@ namespace mc
     {
     public:
         static const int CHUNK_SIZE = 16;
-        // static const int CHUNK_HEIGHT = 32;
+        static const int CHUNK_HEIGHT = 60;
 
     private:
         World *world;
         // BlockType ***blocks;
-        // BlockType blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = {BlockType::Stone};
-        BlockType blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE] = {BlockType::Stone};
+        BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE] = {BlockType::Air};
+        // BlockType blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE] = {BlockType::Stone};
         Mesh mesh;
         glm::vec3 position = glm::vec3(0, 0, 0);
         glm::mat4 modelMatrix = glm::mat4(1.0);
@@ -81,12 +82,6 @@ namespace mc
         mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
         mc::Texture tex2 = mc::createTextureFromPath("../assets/endstone.png");
 
-        void addCubeToMesh(float x, float y, float z);
-        bool blockCoordinatesAtChunkBorder(int x, int y, int z);
-        bool blockBordersNeighbourChunk(glm::vec3 pos);
-        int *OnedTo3d(int i);
-        unsigned int loadCubemap(vector<std::string> faces);
-
     public:
         Chunk();
         ~Chunk();
@@ -95,11 +90,9 @@ namespace mc
         void createMesh();
         int get1DIndexForPosition(glm::vec3 position);
         glm::vec3 getPosition() { return position; }
-        // BlockType getBlock(glm::ivec3 position) { return blocks[position.x][position.y][position.z]; }
-        BlockType getBlock(glm::ivec3 position) { return blocks[get1DIndexForPosition(position)]; }
+        BlockType getBlock(glm::ivec3 position) { return blocks[position.x][position.y][position.z]; }
 
-        // void setBlock(glm::ivec3 position, BlockType bType);
-        void setBlock(glm::vec3 position, BlockType bType);
+        void setBlock(glm::ivec3 position, BlockType bType) { blocks[position.x][position.y][position.z] = bType; }
         void setPosition(glm::vec3 pos) { position = pos; }
         void setWorld(World *w) { world = w; }
     };

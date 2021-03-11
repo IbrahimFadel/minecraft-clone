@@ -13,7 +13,7 @@ uniform mat4 MV;
 uniform vec3 lightPositionWorldspace;
 
 void main(){
-	vec3 ambientLight = vec3(0.1, 0.1, 0.1);
+	vec3 ambientLight = vec3(0.2, 0.2, 0.2);
     // Light emission properties
 	// You probably want to put them as uniforms
 	vec3 LightColor = vec3(1,1,1);
@@ -26,8 +26,8 @@ void main(){
 	vec3 MaterialSpecularColor = vec3(0.2,0.2,0.2);
 
 	// Distance to the light
-	float distance = length( lightPositionWorldspace - positionWorldspace );
-	// float distance = 50;
+	// float distance = length( lightPositionWorldspace - positionWorldspace );
+	float distance = 50;
 
 	// Normal of the computed fragment, in camera space
 	vec3 n = normalize( normalCameraspace );
@@ -56,7 +56,7 @@ void main(){
 	// 	// Diffuse : "color" of the object
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 	// 	// Specular : reflective highlight, like a mirror
-		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance) + ambientLight;
+		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
 	// color.rgb = 
 	// // 	// Ambient : simulates indirect lighting
 	// 	MaterialAmbientColor +

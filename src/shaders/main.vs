@@ -15,6 +15,7 @@ uniform mat4 projection;
 uniform mat4 view;
 uniform mat4 model;
 
+
 void main(){
     mat4 mvp = projection * view * model;
 
@@ -29,6 +30,14 @@ void main(){
 	lightDirectionCameraspace = LightPositionCameraspace + eyeDirectionCameraspace;
 	
 	normalCameraspace = ( view * model * vec4(vertexNormalModelspace,0)).xyz;
+
+
+	vec2 vertexUVs[4] = vec2[4](
+		vec2(0, 0),
+		vec2(1, 0),
+		vec2(0, 1),
+		vec2(1, 1)
+	);
 	
 	UV = vertexUV;
 }

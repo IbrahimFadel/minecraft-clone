@@ -17,8 +17,8 @@ namespace mc
 
     enum BlockType
     {
-        Stone,
         Air,
+        Stone,
         EndStone,
     };
 
@@ -50,7 +50,7 @@ namespace mc
         void setType(BlockType bType) { type = bType; }
     };
 
-    static float blockSize = 0.5;
+    static float blockSize = 0.3;
 
 } // namespace  mc
 

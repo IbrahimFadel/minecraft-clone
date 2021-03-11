@@ -22,7 +22,6 @@ namespace mc
 
     public:
         Window(unsigned width, unsigned height, std::string title) : width(width), height(height), title(title) { initWindow(); };
-        void run(void (*renderFunction)());
 
         GLFWwindow *getGLFWWindow() { return glfwWindow; }
         unsigned getWidth() { return width; }
