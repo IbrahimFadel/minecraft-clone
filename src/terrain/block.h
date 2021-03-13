@@ -20,6 +20,7 @@ namespace mc
         Air,
         Grass,
         Stone,
+        Water,
         EndStone,
     };
 
@@ -30,6 +31,7 @@ namespace mc
     static std::map<BlockType, int> blockTextureOffsets = {
         {BlockType::Grass, 0},
         {BlockType::Stone, 2},
+        {BlockType::Water, 3},
     };
 
     static float blockSize = 0.3;

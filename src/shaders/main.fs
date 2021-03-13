@@ -9,7 +9,6 @@ in vec3 lightDirectionCameraspace;
 out vec4 color;
 
 uniform sampler2D textureSampler;
-uniform mat4 MV;
 uniform vec3 lightPositionWorldspace;
 
 void main(){
@@ -57,17 +56,6 @@ void main(){
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
 	// 	// Specular : reflective highlight, like a mirror
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
-	// color.rgb = 
-	// // 	// Ambient : simulates indirect lighting
-	// 	MaterialAmbientColor +
-	// // 	// Diffuse : "color" of the object
-	// 	MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +
-	// // 	// Specular : reflective highlight, like a mirror
-	// 	MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance) + ambientLight;
-	// color.rgb = texture( textureSampler, UV ).rgb;
-    color.a = 1.0;
 
-	// color.r = positionWorldspace.z / 2;
-
-	// color.rgb = normalize(positionWorldspace);
+	color.a = 1.0;
 }

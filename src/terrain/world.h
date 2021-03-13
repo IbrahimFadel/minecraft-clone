@@ -52,8 +52,13 @@ namespace mc
 
         FastNoiseLite noise;
 
+        int waterLevel = 15;
+
         double maxHeight = 32 * 2.0;
         double minHeight = 0.0;
+        int lacunarity = 15;     // controls increase in frequency of octaves
+        float persistance = 0.5; // controls decrease in amplitude of octaves
+        int numOctaves = 8;
 
         void generateSeed();
 
@@ -62,13 +67,28 @@ namespace mc
 
         int getBlockHeightAtWorldPosition(glm::ivec2 position)
         {
-            float y = noise.GetNoise((float)position.x, (float)position.y);
-            int finalY = (int)(((y + 1) / 2.0) * (maxHeight - minHeight));
-            return finalY;
+            float amplitude = 1;
+            float frequency = 1;
+            float noiseHeight = 0;
+
+            for (int i = 0; i < numOctaves; i++)
+            {
+                // noise.SetFrequency(pow(lacunarity, i));
+                // amplitude = pow(persistance, i);
+                float y = noise.GetNoise((float)position.x, (float)position.y);
+                float finalY = (((y + 1) / 2.0) * ((amplitude * 20) - minHeight));
+                noiseHeight += finalY;
+                // std::cout << y << ' ' << finalY << ' ' << noiseHeight << '\n';
+
+                amplitude *= persistance;
+                frequency *= lacunarity;
+            }
+
+            return noiseHeight;
         }
 
         void generateChunk(glm::ivec2 position);
-        void render(const std::unique_ptr<Shader> &shader);
+        void render(Renderer *renderer);
         Chunk *getChunk(glm::ivec2 position);
     };
 

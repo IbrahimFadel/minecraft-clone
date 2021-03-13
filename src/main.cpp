@@ -116,6 +116,9 @@ int main()
     auto skyboxShader = std::make_unique<mc::Shader>("../src/shaders/skybox.vs", "../src/shaders/skybox.fs");
     skyboxShader->load();
 
+    auto waterShader = std::make_unique<mc::Shader>("../src/shaders/water.vs", "../src/shaders.water.fs");
+    waterShader->load();
+
     std::vector<std::string> faces =
         {
             "../assets/right.jpg",
@@ -200,7 +203,8 @@ int main()
 
     auto world = std::make_unique<mc::World>();
     // world.generateHeightmap();
-    // world.generateChunk(glm::vec3(0, 0, 0));
+    // world->generateChunk(glm::vec3(0, 0, 0));
+    // world->generateChunk(glm::vec3(1, 0, 0));
     // world.generateChunk(glm::vec3(1, 0, 0));
     // world.generateChunk(glm::vec3(0, 0, 1));
     // world.generateChunk(glm::vec3(1, 0, 1));
@@ -221,6 +225,8 @@ int main()
     glEnable(GL_DEBUG_OUTPUT);
     // glDebugMessageCallback(MessageCallback, 0);
 
+    auto renderer = new mc::Renderer();
+
     bool wireframe = false;
     glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
 
@@ -230,23 +236,11 @@ int main()
         glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(programID);
-
         player->handleMovement();
         player->updateCameraMatrices();
 
-        glUniformMatrix4fv(projectionID, 1, GL_FALSE, &player->getCamera()->getProjection()[0][0]);
-        glUniformMatrix4fv(viewID, 1, GL_FALSE, &player->getCamera()->getView()[0][0]);
-        glUniform3f(lightPositionWorldspaceID, lightPos.x, lightPos.y, lightPos.z);
-
-        // glUseProgram(mirrorShader->getProgramID());
-
-        // GLuint projectionID = glGetUniformLocation(programID, "projection");
-        // GLuint viewID = glGetUniformLocation(programID, "view");
-
-        // glUniformMatrix4fv(projectionID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-        // glUniformMatrix4fv(viewID, 1, GL_FALSE, &camera->getView()[0][0]);
-        // glUniform3f(glGetUniformLocation(mirrorShader->getProgramID(), "cameraPos"), camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+        renderer->setProjectionMatrix(player->getCamera()->getProjection());
+        renderer->setViewMatrix(player->getCamera()->getView());
 
         glm::vec3 pos = player->getCamera()->getPosition();
 
@@ -304,8 +298,7 @@ int main()
             world->generateChunk(backLeft);
         }
 
-        world->render(shader);
-        // chunk->render(shader);
+        world->render(renderer);
 
         glDepthFunc(GL_LEQUAL); // change depth function so depth test passes when values are equal to depth buffer's content
         glUseProgram(skyboxShader->getProgramID());
@@ -321,85 +314,6 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
-
-        // glDepthMask(GL_FALSE);
-        // glDepthFunc(GL_LEQUAL);
-        // glUseProgram(skyboxShader->getProgramID());
-
-        // GLuint skyboxProjID = glGetUniformLocation(skyboxShader->getProgramID(), "projection");
-        // GLuint skyboxViewID = glGetUniformLocation(skyboxShader->getProgramID(), "view");
-
-        // glUniformMatrix4fv(skyboxProjID, 1, GL_FALSE, &camera->getProjection()[0][0]);
-        // auto view = glm::mat4(glm::mat3(camera->getView()));
-        // glUniformMatrix4fv(skyboxViewID, 1, GL_FALSE, &view[0][0]);
-
-        // glBindVertexArray(skyboxVAO);
-        // glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
-
-        // mc::bindVAO(skyboxVAO);
-        // mc::bindVBO(skyboxVBO);
-        // mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
-
-        // glDrawArrays(GL_TRIANGLES, 0, 36);
-        // glDepthMask(GL_TRUE);
-
-        // glm::vec3 pos = camera->getPosition();
-
-        // float cx = pos.x / 16;
-        // cx = cx < 0 ? ceil(abs(cx)) * -1 : floor(cx);
-        // float cz = pos.z / 16;
-        // cz = cz < 0 ? ceil(abs(cz)) * -1 : floor(cz);
-
-        // glm::ivec3 chunk(cx, 0, cz);
-
-        // glm::ivec3 front(cx, 0, cz + 1);
-        // glm::ivec3 right(cx + 1, 0, cz);
-        // glm::ivec3 back(cx, 0, cz - 1);
-        // glm::ivec3 left(cx - 1, 0, cz);
-
-        // glm::ivec3 frontRight(cx + 1, 0, cz + 1);
-        // glm::ivec3 frontLeft(cx - 1, 0, cz + 1);
-        // glm::ivec3 backRight(cx + 1, 0, cz - 1);
-        // glm::ivec3 backLeft(cx - 1, 0, cz - 1);
-
-        // if (!world.getChunk(chunk))
-        // {
-        //     world.generateChunk(chunk);
-        // }
-        // if (!world.getChunk(front))
-        // {
-        //     world.generateChunk(front);
-        // }
-        // if (!world.getChunk(right))
-        // {
-        //     world.generateChunk(right);
-        // }
-        // if (!world.getChunk(back))
-        // {
-        //     world.generateChunk(back);
-        // }
-        // if (!world.getChunk(left))
-        // {
-        //     world.generateChunk(left);
-        // }
-        // if (!world.getChunk(frontRight))
-        // {
-        //     world.generateChunk(frontRight);
-        // }
-        // if (!world.getChunk(frontLeft))
-        // {
-        //     world.generateChunk(frontLeft);
-        // }
-        // if (!world.getChunk(backRight))
-        // {
-        //     world.generateChunk(backRight);
-        // }
-        // if (!world.getChunk(backLeft))
-        // {
-        //     world.generateChunk(backLeft);
-        // }
-
-        // world.render(shader);
 
         // Swap buffers
         glfwSwapBuffers(glfwWindow);

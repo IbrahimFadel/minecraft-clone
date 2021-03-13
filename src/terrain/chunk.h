@@ -6,8 +6,12 @@
 
 namespace mc
 {
+    struct Mesh;
     class Chunk;
-};
+}; // namespace mc
+
+#include "../entity.h"
+#include "../rendering/renderer.h"
 
 #include "world.h"
 #include <vector>
@@ -66,24 +70,36 @@ namespace mc
     private:
         World *world;
         BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE] = {BlockType::Air};
-        Mesh mesh;
+        Mesh *blockMesh = new Mesh();
+        Mesh *waterMesh = new Mesh();
+        int blockMeshSize = 0;
+        int waterMeshSize = 0;
+
         glm::ivec2 position = glm::ivec2(0, 0);
         glm::mat4 modelMatrix = glm::mat4(1.0);
 
-        GLuint vertexArrayID;
-        mc::VBO vertexBuffer;
-        mc::VBO uvBuffer;
-        mc::VBO indicesBuffer;
-        mc::VBO normalsBuffer;
+        GLuint blockMeshVertexArrayID;
+        mc::VBO blockMeshVertexBuffer;
+        mc::VBO blockMeshUvBuffer;
+        mc::VBO blockMeshIndicesBuffer;
+        mc::VBO blockMeshNormalsBuffer;
+
+        GLuint waterMeshVertexArrayID;
+        mc::VBO waterMeshVertexBuffer;
+        mc::VBO waterMeshUvBuffer;
+        mc::VBO waterMeshIndicesBuffer;
+        mc::VBO waterMeshNormalsBuffer;
 
         mc::Texture blockatlasTexture = mc::createTextureFromPath("../assets/blockatlas.png");
 
         // mc::Texture tex = mc::createTextureFromPath("../assets/stone.jpg");
         // mc::Texture tex2 = mc::createTextureFromPath("../assets/endstone.png");
 
+        void addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *meshSize);
+
     public:
         void update();
-        void render(const std::unique_ptr<Shader> &shader);
+        void render(Renderer *renderer);
         void createMesh();
 
         glm::ivec2 getPosition() { return position; }

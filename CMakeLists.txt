@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.7...3.18)
-project(minecraft)
+project(mcClone)
 
 SET(CPP_COMPILE_FLAGS "-std=c++17")
+set(CMAKE_INSTALL_PREFIX /usr/local/bin)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(SRC_FILES
     ${SRC_DIR}/main.cpp
@@ -10,55 +11,25 @@ set(SRC_FILES
     ${SRC_DIR}/texture.cpp
     ${SRC_DIR}/camera.cpp
     ${SRC_DIR}/player.cpp
+    ${SRC_DIR}/entity.h
 
     ${SRC_DIR}/terrain/chunk.cpp
     ${SRC_DIR}/terrain/world.cpp
 
+    ${SRC_DIR}/rendering/renderer.cpp
     ${SRC_DIR}/rendering/vbo.cpp
     ${SRC_DIR}/rendering/vao.cpp
 )
 
-# add_library(noise 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/noise/noise1234.h
-# )
-
-# add_library(fastNoiseLite
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseLite/FastNoiseLite.h
-# )
-
-# add_library(fastNoise 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_sse41.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_sse2.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_neon.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_internal.cpp
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_avx512.cpp
-# )
-
-# set_target_properties(fastNoise PROPERTIES COMPILE_FLAGS "-std=c++11")
-
-
-# set_property(SOURCE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_sse41.cpp
-#     PROPERTY COMPILE_FLAGS -msse4.1
-# )
-# set_property(SOURCE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_sse2.cpp
-#     PROPERTY COMPILE_FLAGS -msse2
-# )
-# set_property(SOURCE
-# ${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD/FastNoiseSIMD_avx512.cpp
-# PROPERTY COMPILE_FLAGS -mavx512f
-# )
-
-
-add_executable(minecraft ${SRC_FILES})
+add_executable(mcClone ${SRC_FILES})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/stb)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseLite)
-# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseSIMD/FastNoiseSIMD)
 
-target_link_libraries(minecraft glfw pthread GLEW GLU GL rt Xrandr Xxf86vm Xi Xinerama X11)
+target_link_libraries(mcClone glfw pthread GLEW GLU GL rt Xrandr Xxf86vm Xi Xinerama X11)
 
-target_compile_options(minecraft PRIVATE "${CPP_COMPILE_FLAGS}")
+target_compile_options(mcClone PRIVATE "${CPP_COMPILE_FLAGS}")
+
+install(TARGETS mcClone
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+)

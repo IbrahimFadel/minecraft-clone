@@ -4,8 +4,11 @@ using namespace mc;
 
 void Chunk::createMesh()
 {
-    int size = 0;
+    int blockMeshSize = 0;
+    int waterMeshSize = 0;
     glm::ivec3 start(0, 0, 0);
+
+    int numb = 0;
 
     for (int x = 0; x < Chunk::CHUNK_SIZE; x++)
     {
@@ -13,277 +16,355 @@ void Chunk::createMesh()
         {
             for (int y = 0; y < Chunk::CHUNK_HEIGHT; y++)
             {
-                BlockType value = getBlock(glm::vec3(x, y, z));
 
-                if (value != BlockType::Air)
+                BlockType blockType = getBlock(glm::vec3(x, y, z));
+
+                if (blockType == BlockType::Air)
                 {
-                    //Base
-                    float ix = x + start.x;
-                    float iy = y + start.y;
-                    float iz = z + start.z;
+                    continue;
+                }
 
-                    //Positive
-                    float px = 0.5f + ix;
-                    float py = 0.5f + iy;
-                    float pz = 0.5f + iz;
-
-                    //Negative
-                    float nx = ix - 0.5f;
-                    float ny = iy - 0.5f;
-                    float nz = iz - 0.5f;
-
-                    int blockatlasOffset = blockTextureOffsets[value];
-
-                    float u1 = (double)1 / numTexturesInAtlas * blockatlasOffset;
-                    float u2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 1);
-
-                    glm::vec2 uvBottomLeft(u1, 0);
-                    glm::vec2 uvBottomRight(u2, 0);
-                    glm::vec2 uvTopLeft(u1, 1);
-                    glm::vec2 uvTopRight(u2, 1);
-
-                    //Top face
-                    if (y == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(x, y + 1, z)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size + 1); // top left
-                        mesh.indices.push_back(size);     // bottom left
-                        mesh.indices.push_back(size + 2); // bottom right
-
-                        mesh.indices.push_back(size + 1); // top left
-                        mesh.indices.push_back(size + 2); // bottom right
-                        mesh.indices.push_back(size + 3); // top right
-
-                        mesh.addVertex(nx, py, pz); // front top left
-                        mesh.addVertex(nx, py, nz); // back top left
-                        mesh.addVertex(px, py, pz); // front top right
-                        mesh.addVertex(px, py, nz); // back top right
-
-                        if (value == BlockType::Grass)
-                        {
-                            float grassU1 = (double)1 / numTexturesInAtlas * (blockatlasOffset + 1);
-                            float grassU2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 2);
-
-                            glm::vec2 grassUvBottomLeft(grassU1, 0);
-                            glm::vec2 grassUvBottomRight(grassU2, 0);
-                            glm::vec2 grassUvTopLeft(grassU1, 1);
-                            glm::vec2 grassUvTopRight(grassU2, 1);
-
-                            mesh.addUV(grassUvBottomLeft);
-                            mesh.addUV(grassUvBottomRight);
-                            mesh.addUV(grassUvTopLeft);
-                            mesh.addUV(grassUvTopRight);
-                        }
-                        else
-                        {
-                            mesh.addUV(uvBottomLeft);
-                            mesh.addUV(uvTopLeft);
-                            mesh.addUV(uvBottomRight);
-                            mesh.addUV(uvTopRight);
-                        }
-
-                        mesh.addNormal(0.0, 1.0, 0.0);
-                        mesh.addNormal(0.0, 1.0, 0.0);
-                        mesh.addNormal(0.0, 1.0, 0.0);
-                        mesh.addNormal(0.0, 1.0, 0.0); // Top Side
-
-                        size += 4;
-                    }
-
-                    //Bottom face
-                    if (y == 0 || getBlock(glm::vec3(x, y - 1, z)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size + 1);
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 2);
-
-                        mesh.addVertex(px, ny, pz);
-                        mesh.addVertex(px, ny, nz);
-                        mesh.addVertex(nx, ny, pz);
-                        mesh.addVertex(nx, ny, nz);
-
-                        mesh.addUV(uvBottomLeft);
-                        mesh.addUV(uvTopLeft);
-                        mesh.addUV(uvBottomRight);
-                        mesh.addUV(uvTopRight);
-
-                        mesh.addNormal(0.0, -1.0, 0.0);
-                        mesh.addNormal(0.0, -1.0, 0.0);
-                        mesh.addNormal(0.0, -1.0, 0.0);
-                        mesh.addNormal(0.0, -1.0, 0.0); // Bottom side
-                        size += 4;
-                    }
-
-                    //Front face
-                    if (z == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(x, y, z + 1)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size + 1);
-
-                        mesh.addVertex(nx, ny, pz);
-                        mesh.addVertex(nx, py, pz);
-                        mesh.addVertex(px, ny, pz);
-                        mesh.addVertex(px, py, pz);
-
-                        mesh.addUV(uvBottomLeft);
-                        mesh.addUV(uvTopLeft);
-                        mesh.addUV(uvBottomRight);
-                        mesh.addUV(uvTopRight);
-
-                        mesh.addNormal(0.0, 0.0, 1.0);
-                        mesh.addNormal(0.0, 0.0, 1.0);
-                        mesh.addNormal(0.0, 0.0, 1.0);
-                        mesh.addNormal(0.0, 0.0, 1.0); // Front Side
-
-                        size += 4;
-                    }
-
-                    //Back face
-                    if (z == 0 || getBlock(glm::vec3(x, y, z - 1)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size + 1);
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 1);
-                        mesh.indices.push_back(size);
-
-                        mesh.addVertex(px, ny, nz);
-                        mesh.addVertex(px, py, nz);
-                        mesh.addVertex(nx, ny, nz);
-                        mesh.addVertex(nx, py, nz);
-
-                        mesh.addUV(uvBottomLeft);
-                        mesh.addUV(uvTopLeft);
-                        mesh.addUV(uvBottomRight);
-                        mesh.addUV(uvTopRight);
-
-                        mesh.addNormal(0.0, 0.0, -1.0);
-                        mesh.addNormal(0.0, 0.0, -1.0);
-                        mesh.addNormal(0.0, 0.0, -1.0);
-                        mesh.addNormal(0.0, 0.0, -1.0); // Back Side
-
-                        size += 4;
-                    }
-
-                    //Right face
-                    if (x == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(x + 1, y, z)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size + 1);
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 1);
-                        mesh.indices.push_back(size);
-
-                        mesh.addVertex(px, ny, pz);
-                        mesh.addVertex(px, py, pz);
-                        mesh.addVertex(px, ny, nz);
-                        mesh.addVertex(px, py, nz);
-
-                        mesh.addUV(uvBottomLeft);
-                        mesh.addUV(uvTopLeft);
-                        mesh.addUV(uvBottomRight);
-                        mesh.addUV(uvTopRight);
-
-                        mesh.addNormal(1.0, 0.0, 0.0);
-                        mesh.addNormal(1.0, 0.0, 0.0);
-                        mesh.addNormal(1.0, 0.0, 0.0);
-                        mesh.addNormal(1.0, 0.0, 0.0); // Right Side
-
-                        size += 4;
-                    }
-
-                    //Left face
-                    if (x == 0 || getBlock(glm::vec3(x - 1, y, z)) == BlockType::Air)
-                    {
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 2);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size);
-                        mesh.indices.push_back(size + 3);
-                        mesh.indices.push_back(size + 1);
-
-                        mesh.addVertex(nx, ny, nz);
-                        mesh.addVertex(nx, py, nz);
-                        mesh.addVertex(nx, ny, pz);
-                        mesh.addVertex(nx, py, pz);
-
-                        mesh.addUV(uvBottomLeft);
-                        mesh.addUV(uvTopLeft);
-                        mesh.addUV(uvBottomRight);
-                        mesh.addUV(uvTopRight);
-
-                        mesh.addNormal(-1.0, 0.0, 0.0);
-                        mesh.addNormal(-1.0, 0.0, 0.0);
-                        mesh.addNormal(-1.0, 0.0, 0.0);
-                        mesh.addNormal(-1.0, 0.0, 0.0); // Left Side
-
-                        size += 4;
-                    }
+                if (blockType == BlockType::Water)
+                {
+                    addCubeToMesh(glm::vec3(x, y, z), blockType, waterMesh, &waterMeshSize);
+                }
+                else
+                {
+                    addCubeToMesh(glm::vec3(x, y, z), blockType, blockMesh, &blockMeshSize);
                 }
             }
         }
     }
 
-    vertexArrayID = mc::createVAO();
-    mc::bindVAO(vertexArrayID);
+    blockMeshVertexArrayID = mc::createVAO();
+    mc::bindVAO(blockMeshVertexArrayID);
 
-    vertexBuffer = mc::createVBO(GL_ARRAY_BUFFER);
-    mc::bindVBO(vertexBuffer);
-    mc::vboBuffer(vertexBuffer, sizeof(mesh.vertices[0]) * mesh.vertices.size(), &mesh.vertices[0]);
+    blockMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    mc::bindVBO(blockMeshVertexBuffer);
+    mc::vboBuffer(blockMeshVertexBuffer, sizeof(blockMesh->vertices[0]) * blockMesh->vertices.size(), &blockMesh->vertices[0]);
 
-    uvBuffer = mc::createVBO(GL_ARRAY_BUFFER);
-    mc::bindVBO(uvBuffer);
-    mc::vboBuffer(uvBuffer, sizeof(mesh.uvCoordinates[0]) * mesh.uvCoordinates.size(), &mesh.uvCoordinates[0]);
+    blockMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2);
+    mc::bindVBO(blockMeshUvBuffer);
+    mc::vboBuffer(blockMeshUvBuffer, sizeof(blockMesh->uvCoordinates[0]) * blockMesh->uvCoordinates.size(), &blockMesh->uvCoordinates[0]);
 
-    indicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER);
-    mc::bindVBO(indicesBuffer);
-    mc::vboBuffer(indicesBuffer, sizeof(mesh.indices[0]) * mesh.indices.size(), &mesh.indices[0]);
+    blockMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1);
+    mc::bindVBO(blockMeshIndicesBuffer);
+    mc::vboBuffer(blockMeshIndicesBuffer, sizeof(blockMesh->indices[0]) * blockMesh->indices.size(), &blockMesh->indices[0]);
 
-    normalsBuffer = mc::createVBO(GL_ARRAY_BUFFER);
-    mc::bindVBO(normalsBuffer);
-    mc::vboBuffer(normalsBuffer, sizeof(mesh.normals[0]) * mesh.normals.size(), &mesh.normals[0]);
+    blockMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    mc::bindVBO(blockMeshNormalsBuffer);
+    mc::vboBuffer(blockMeshNormalsBuffer, sizeof(blockMesh->normals[0]) * blockMesh->normals.size(), &blockMesh->normals[0]);
+
+    waterMeshVertexArrayID = mc::createVAO();
+    mc::bindVAO(waterMeshVertexArrayID);
+
+    waterMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    mc::bindVBO(waterMeshVertexBuffer);
+    mc::vboBuffer(waterMeshVertexBuffer, sizeof(waterMesh->vertices[0]) * waterMesh->vertices.size(), &waterMesh->vertices[0]);
+
+    waterMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2);
+    mc::bindVBO(waterMeshUvBuffer);
+    mc::vboBuffer(waterMeshUvBuffer, sizeof(waterMesh->uvCoordinates[0]) * waterMesh->uvCoordinates.size(), &waterMesh->uvCoordinates[0]);
+
+    waterMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1);
+    mc::bindVBO(waterMeshIndicesBuffer);
+    mc::vboBuffer(waterMeshIndicesBuffer, sizeof(waterMesh->indices[0]) * waterMesh->indices.size(), &waterMesh->indices[0]);
+
+    waterMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    mc::bindVBO(waterMeshNormalsBuffer);
+    mc::vboBuffer(waterMeshNormalsBuffer, sizeof(waterMesh->normals[0]) * waterMesh->normals.size(), &waterMesh->normals[0]);
 }
 
-void Chunk::render(const std::unique_ptr<Shader> &shader)
+void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *meshSize)
 {
-    GLuint textureID = glGetUniformLocation(shader->getProgramID(), "textureSampler");
-    GLuint modelID = glGetUniformLocation(shader->getProgramID(), "model");
+    //Positive
+    float px = 0.5f + cubePos.x;
+    float py = 0.5f + cubePos.y;
+    float pz = 0.5f + cubePos.z;
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, blockatlasTexture.handle);
-    glUniform1i(textureID, 0);
+    //Negative
+    float nx = cubePos.x - 0.5f;
+    float ny = cubePos.y - 0.5f;
+    float nz = cubePos.z - 0.5f;
 
+    int blockatlasOffset = blockTextureOffsets[type];
+
+    float u1 = (double)1 / numTexturesInAtlas * blockatlasOffset;
+    float u2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 1);
+
+    glm::vec2 uvBottomLeft(u1, 0);
+    glm::vec2 uvBottomRight(u2, 0);
+    glm::vec2 uvTopLeft(u1, 1);
+    glm::vec2 uvTopRight(u2, 1);
+
+    //Top face
+    if (cubePos.y == Chunk::CHUNK_HEIGHT - 1 || getBlock(glm::vec3(cubePos.x, cubePos.y + 1, cubePos.z)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize + 1); // top left
+        mesh->indices.push_back(*meshSize);     // bottom left
+        mesh->indices.push_back(*meshSize + 2); // bottom right
+
+        mesh->indices.push_back(*meshSize + 1); // top left
+        mesh->indices.push_back(*meshSize + 2); // bottom right
+        mesh->indices.push_back(*meshSize + 3); // top right
+
+        mesh->addVertex(nx, py, pz); // front top left
+        mesh->addVertex(nx, py, nz); // back top left
+        mesh->addVertex(px, py, pz); // front top right
+        mesh->addVertex(px, py, nz); // back top right
+
+        if (type == BlockType::Grass)
+        {
+            float grassU1 = (double)1 / numTexturesInAtlas * (blockatlasOffset + 1);
+            float grassU2 = ((double)1 / numTexturesInAtlas) * (blockatlasOffset + 2);
+
+            glm::vec2 grassUvBottomLeft(grassU1, 0);
+            glm::vec2 grassUvBottomRight(grassU2, 0);
+            glm::vec2 grassUvTopLeft(grassU1, 1);
+            glm::vec2 grassUvTopRight(grassU2, 1);
+
+            mesh->addUV(grassUvBottomLeft);
+            mesh->addUV(grassUvBottomRight);
+            mesh->addUV(grassUvTopLeft);
+            mesh->addUV(grassUvTopRight);
+        }
+        else
+        {
+            mesh->addUV(uvBottomLeft);
+            mesh->addUV(uvTopLeft);
+            mesh->addUV(uvBottomRight);
+            mesh->addUV(uvTopRight);
+        }
+
+        mesh->addNormal(0.0, 1.0, 0.0);
+        mesh->addNormal(0.0, 1.0, 0.0);
+        mesh->addNormal(0.0, 1.0, 0.0);
+        mesh->addNormal(0.0, 1.0, 0.0); // Top Side
+
+        *meshSize += 4;
+    }
+
+    //Bottom face
+    if (cubePos.y == 0 || getBlock(glm::vec3(cubePos.x, cubePos.y - 1, cubePos.z)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize + 1);
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 2);
+
+        mesh->addVertex(px, ny, pz);
+        mesh->addVertex(px, ny, nz);
+        mesh->addVertex(nx, ny, pz);
+        mesh->addVertex(nx, ny, nz);
+
+        mesh->addUV(uvBottomLeft);
+        mesh->addUV(uvTopLeft);
+        mesh->addUV(uvBottomRight);
+        mesh->addUV(uvTopRight);
+
+        mesh->addNormal(0.0, -1.0, 0.0);
+        mesh->addNormal(0.0, -1.0, 0.0);
+        mesh->addNormal(0.0, -1.0, 0.0);
+        mesh->addNormal(0.0, -1.0, 0.0); // Bottom side
+        *meshSize += 4;
+    }
+
+    //Front face
+    if (cubePos.z == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z + 1)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize + 1);
+
+        mesh->addVertex(nx, ny, pz);
+        mesh->addVertex(nx, py, pz);
+        mesh->addVertex(px, ny, pz);
+        mesh->addVertex(px, py, pz);
+
+        mesh->addUV(uvBottomLeft);
+        mesh->addUV(uvTopLeft);
+        mesh->addUV(uvBottomRight);
+        mesh->addUV(uvTopRight);
+
+        mesh->addNormal(0.0, 0.0, 1.0);
+        mesh->addNormal(0.0, 0.0, 1.0);
+        mesh->addNormal(0.0, 0.0, 1.0);
+        mesh->addNormal(0.0, 0.0, 1.0); // Front Side
+
+        *meshSize += 4;
+    }
+
+    //Back face
+    if (cubePos.z == 0 || getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z - 1)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize + 1);
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 1);
+        mesh->indices.push_back(*meshSize);
+
+        mesh->addVertex(px, ny, nz);
+        mesh->addVertex(px, py, nz);
+        mesh->addVertex(nx, ny, nz);
+        mesh->addVertex(nx, py, nz);
+
+        mesh->addUV(uvBottomLeft);
+        mesh->addUV(uvTopLeft);
+        mesh->addUV(uvBottomRight);
+        mesh->addUV(uvTopRight);
+
+        mesh->addNormal(0.0, 0.0, -1.0);
+        mesh->addNormal(0.0, 0.0, -1.0);
+        mesh->addNormal(0.0, 0.0, -1.0);
+        mesh->addNormal(0.0, 0.0, -1.0); // Back Side
+
+        *meshSize += 4;
+    }
+
+    //Right face
+    if (cubePos.x == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(cubePos.x + 1, cubePos.y, cubePos.z)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize + 1);
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 1);
+        mesh->indices.push_back(*meshSize);
+
+        mesh->addVertex(px, ny, pz);
+        mesh->addVertex(px, py, pz);
+        mesh->addVertex(px, ny, nz);
+        mesh->addVertex(px, py, nz);
+
+        mesh->addUV(uvBottomLeft);
+        mesh->addUV(uvTopLeft);
+        mesh->addUV(uvBottomRight);
+        mesh->addUV(uvTopRight);
+
+        mesh->addNormal(1.0, 0.0, 0.0);
+        mesh->addNormal(1.0, 0.0, 0.0);
+        mesh->addNormal(1.0, 0.0, 0.0);
+        mesh->addNormal(1.0, 0.0, 0.0); // Right Side
+
+        *meshSize += 4;
+    }
+
+    //Left face
+    if (cubePos.x == 0 || getBlock(glm::vec3(cubePos.x - 1, cubePos.y, cubePos.z)) == BlockType::Air)
+    {
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 2);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize);
+        mesh->indices.push_back(*meshSize + 3);
+        mesh->indices.push_back(*meshSize + 1);
+
+        mesh->addVertex(nx, ny, nz);
+        mesh->addVertex(nx, py, nz);
+        mesh->addVertex(nx, ny, pz);
+        mesh->addVertex(nx, py, pz);
+
+        mesh->addUV(uvBottomLeft);
+        mesh->addUV(uvTopLeft);
+        mesh->addUV(uvBottomRight);
+        mesh->addUV(uvTopRight);
+
+        mesh->addNormal(-1.0, 0.0, 0.0);
+        mesh->addNormal(-1.0, 0.0, 0.0);
+        mesh->addNormal(-1.0, 0.0, 0.0);
+        mesh->addNormal(-1.0, 0.0, 0.0); // Left Side
+
+        *meshSize += 4;
+    }
+}
+
+void Chunk::render(Renderer *renderer)
+{
     modelMatrix[3][0] = position.x * CHUNK_SIZE;
-    // modelMatrix[3][1] = position.y * CHUNK_SIZE;
     modelMatrix[3][2] = position.y * CHUNK_SIZE;
+    Entity *blockMeshEntity = new Entity(blockMesh, &blockatlasTexture, &modelMatrix);
 
-    glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
+    blockMeshEntity->setVAO(blockMeshVertexArrayID);
 
-    mc::bindVAO(vertexArrayID);
-    mc::bindVBO(vertexBuffer);
-    mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
+    std::vector<VBO> blockMeshVBOs;
+    blockMeshVBOs.push_back(blockMeshVertexBuffer);
+    blockMeshVBOs.push_back(blockMeshUvBuffer);
+    blockMeshVBOs.push_back(blockMeshNormalsBuffer);
 
-    mc::bindVBO(uvBuffer);
-    mc::vaoEnable(1, 2, GL_FLOAT, 0, 0);
+    blockMeshEntity->setVBOs(blockMeshVBOs);
 
-    mc::bindVBO(normalsBuffer);
-    mc::vaoEnable(2, 3, GL_FLOAT, 0, 0);
+    renderer->render(blockMeshEntity, ShaderType::RegularBlock);
 
-    glDrawElements(
-        GL_TRIANGLES,
-        mesh.indices.size(),
-        GL_UNSIGNED_INT,
-        (void *)0);
+    Entity *waterMeshEntity = new Entity(waterMesh, &blockatlasTexture, &modelMatrix);
 
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    waterMeshEntity->setVAO(waterMeshVertexArrayID);
+
+    std::vector<VBO> waterMeshVBOs;
+    waterMeshVBOs.push_back(waterMeshVertexBuffer);
+    waterMeshVBOs.push_back(waterMeshUvBuffer);
+    waterMeshVBOs.push_back(waterMeshNormalsBuffer);
+
+    waterMeshEntity->setVBOs(waterMeshVBOs);
+
+    renderer->render(waterMeshEntity, ShaderType::WaterBlock);
+
+    // GLuint textureID = glGetUniformLocation(blockMeshShader->getProgramID(), "textureSampler");
+    // GLuint modelID = glGetUniformLocation(blockMeshShader->getProgramID(), "model");
+
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, blockatlasTexture.handle);
+    // glUniform1i(textureID, 0);
+
+    // modelMatrix[3][0] = position.x * CHUNK_SIZE;
+    // modelMatrix[3][2] = position.y * CHUNK_SIZE;
+
+    // glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
+
+    // mc::bindVAO(blockMeshVertexArrayID);
+    // mc::bindVBO(blockMeshVertexBuffer);
+    // mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
+
+    // mc::bindVBO(blockMeshUvBuffer);
+    // mc::vaoEnable(1, 2, GL_FLOAT, 0, 0);
+
+    // mc::bindVBO(blockMeshNormalsBuffer);
+    // mc::vaoEnable(2, 3, GL_FLOAT, 0, 0);
+
+    // glDrawElements(
+    //     GL_TRIANGLES,
+    //     blockMesh->indices.size(),
+    //     GL_UNSIGNED_INT,
+    //     (void *)0);
+
+    // glDisableVertexAttribArray(0);
+    // glDisableVertexAttribArray(1);
+    // glDisableVertexAttribArray(2);
+
+    // glUseProgram(waterMeshShader->getProgramID());
+
+    // mc::bindVAO(waterMeshVertexArrayID);
+    // mc::bindVBO(waterMeshVertexBuffer);
+    // mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
+
+    // mc::bindVBO(waterMeshUvBuffer);
+    // mc::vaoEnable(1, 2, GL_FLOAT, 0, 0);
+
+    // mc::bindVBO(waterMeshNormalsBuffer);
+    // mc::vaoEnable(2, 3, GL_FLOAT, 0, 0);
+
+    // glDrawElements(
+    //     GL_TRIANGLES,
+    //     waterMesh->indices.size(),
+    //     GL_UNSIGNED_INT,
+    //     (void *)0);
+
+    // glDisableVertexAttribArray(0);
+    // glDisableVertexAttribArray(1);
+    // glDisableVertexAttribArray(2);
 }

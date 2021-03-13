@@ -40,6 +40,8 @@ void World::generateChunk(glm::ivec2 position)
         for (int z = initialWorldZ; z < initialWorldZ + Chunk::CHUNK_SIZE; z++)
         {
             int finalY = getBlockHeightAtWorldPosition(glm::ivec2(x, z));
+            int blockRelativeToChunkX = x - initialWorldX;
+            int blockRelativeToChunkZ = z - initialWorldZ;
 
             for (int belowY = finalY; belowY >= 0; belowY--)
             {
@@ -62,9 +64,14 @@ void World::generateChunk(glm::ivec2 position)
                         }
                     }
                 }
-                int blockRelativeToChunkX = x - initialWorldX;
-                int blockRelativeToChunkZ = z - initialWorldZ;
                 chunk->setBlock(glm::vec3(blockRelativeToChunkX, belowY, blockRelativeToChunkZ), type);
+            }
+            if (finalY <= waterLevel)
+            {
+                for (int aboveY = finalY; aboveY < waterLevel; aboveY++)
+                {
+                    chunk->setBlock(glm::vec3(blockRelativeToChunkX, aboveY, blockRelativeToChunkZ), BlockType::Water);
+                }
             }
         }
     }
@@ -74,7 +81,6 @@ void World::generateChunk(glm::ivec2 position)
 
 Chunk *World::getChunk(glm::ivec2 position)
 {
-    // return chunks[position];
     if (chunks.count(position) == 0)
     {
         return nullptr;
@@ -82,10 +88,10 @@ Chunk *World::getChunk(glm::ivec2 position)
     return chunks[position];
 }
 
-void World::render(const std::unique_ptr<Shader> &shader)
+void World::render(Renderer *renderer)
 {
     for (auto const &[position, chunk] : chunks)
     {
-        chunk->render(shader);
+        chunk->render(renderer);
     }
 }
