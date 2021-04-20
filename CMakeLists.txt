@@ -10,15 +10,16 @@ set(SRC_FILES
     ${SRC_DIR}/shader.cpp
     ${SRC_DIR}/texture.cpp
     ${SRC_DIR}/camera.cpp
-    ${SRC_DIR}/player.cpp
-    ${SRC_DIR}/entity.h
+    # ${SRC_DIR}/player.cpp
+    # ${SRC_DIR}/entity.h
 
-    ${SRC_DIR}/terrain/chunk.cpp
-    ${SRC_DIR}/terrain/world.cpp
+    ${SRC_DIR}/chunk.cpp
+    ${SRC_DIR}/world.cpp
 
-    ${SRC_DIR}/rendering/renderer.cpp
-    ${SRC_DIR}/rendering/vbo.cpp
-    ${SRC_DIR}/rendering/vao.cpp
+    # ${SRC_DIR}/rendering/renderer.cpp
+    # ${SRC_DIR}/rendering/vbo.cpp
+    # ${SRC_DIR}/rendering/vao.cpp
+    # ${SRC_DIR}/rendering/fbo.cpp
 )
 
 add_executable(mcClone ${SRC_FILES})
@@ -27,6 +28,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/stb)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/FastNoiseLite)
 
 target_link_libraries(mcClone glfw pthread GLEW GLU GL rt Xrandr Xxf86vm Xi Xinerama X11)
+
+target_include_directories(mcClone PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_compile_options(mcClone PRIVATE "${CPP_COMPILE_FLAGS}")
 

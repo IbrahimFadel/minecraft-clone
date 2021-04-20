@@ -92,6 +92,31 @@ void World::render(Renderer *renderer)
 {
     for (auto const &[position, chunk] : chunks)
     {
-        chunk->render(renderer);
+        // chunk->render(renderer);
+        chunk->renderBlockMesh(renderer);
+        // chunk->renderWaterMesh(renderer);
     }
+}
+
+BlockType World::getBlock(glm::ivec3 position)
+{
+    float cx = position.x / 16;
+    cx = cx < 0 ? ceil(abs(cx)) * -1 : floor(cx);
+    float cz = position.z / 16;
+    cz = cz < 0 ? ceil(abs(cz)) * -1 : floor(cz);
+
+    std::cout << cx << '/' << cz << '\n';
+
+    Chunk *chunk = getChunk(glm::ivec2((int)cx, (int)cz));
+    if (!chunk)
+    {
+        std::cout << "NOT OKAY\n";
+        // return chunk->getBlock(glm::ivec3(position.x - (int)(cx * Chunk::CHUNK_SIZE), position.y, position.z - (int)(cz * Chunk::CHUNK_SIZE)));
+    }
+
+    int cubeChunkX = position.x - (int)(cx * Chunk::CHUNK_SIZE);
+    int cubeChunkZ = position.z - (int)(cz * Chunk::CHUNK_SIZE);
+    // std::cout << cubeChunkX << '/' << cubeChunkZ << '\n';
+
+    return chunk->getBlock(glm::ivec3(position.x - (int)(cx * Chunk::CHUNK_SIZE), position.y, position.z - (int)(cz * Chunk::CHUNK_SIZE)));
 }

@@ -2,50 +2,57 @@
 
 using namespace mc;
 
-// void Camera::computeMatricesFromInputs()
-// {
-//     static double lastTime = glfwGetTime();
-//     double currentTime = glfwGetTime();
-//     float deltaTime = float(currentTime - lastTime);
+void Camera::handleMovement()
+{
+    static double lastTime = glfwGetTime();
+    double currentTime = glfwGetTime();
+    deltaTime = float(currentTime - lastTime);
 
-//     glfwGetCursorPos(window->getGLFWWindow(), &mouse.xpos, &mouse.ypos);
-//     glfwSetCursorPos(window->getGLFWWindow(), (double)window->getWidth() / 2, (double)window->getHeight() / 2);
+    glfwGetCursorPos(window->getGLFWWindow(), &mouseX, &mouseY);
+    glfwSetCursorPos(window->getGLFWWindow(), (double)window->getWidth() / 2, (double)window->getHeight() / 2);
 
-//     horizontalAngle += mouse.speed * deltaTime * float(1024 / 2 - mouse.xpos);
-//     verticalAngle += mouse.speed * deltaTime * float(768 / 2 - mouse.ypos);
+    horizontalAngle += sensitivity * deltaTime * float(window->getWidth() / 2 - mouseX);
+    verticalAngle += sensitivity * deltaTime * float(window->getHeight() / 2 - mouseY);
 
-//     glm::vec3 direction(
-//         cos(verticalAngle) * sin(horizontalAngle),
-//         sin(verticalAngle),
-//         cos(verticalAngle) * cos(horizontalAngle));
+    // Move forward
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_W) == GLFW_PRESS)
+    {
+        auto forwardVector = getForwardVector(horizontalAngle) * deltaTime * speed;
+        position += forwardVector * deltaTime * speed;
+    }
+    // Move backward
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_S) == GLFW_PRESS)
+    {
+        auto forwardVector = getForwardVector(horizontalAngle) * deltaTime * speed;
+        position -= forwardVector * deltaTime * speed;
+    }
+    // Strafe right
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_D) == GLFW_PRESS)
+    {
+        auto rightVector = getRightVector(horizontalAngle) * deltaTime * speed;
+        position += rightVector * deltaTime * speed;
+    }
+    // Strafe left
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_A) == GLFW_PRESS)
+    {
+        auto rightVector = getRightVector(horizontalAngle) * deltaTime * speed;
+        position -= rightVector * deltaTime * speed;
+    }
 
-//     // Right vector
-//     glm::vec3 right = glm::vec3(
-//         sin(horizontalAngle - 3.14f / 2.0f),
-//         0,
-//         cos(horizontalAngle - 3.14f / 2.0f));
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        position += glm::vec3(0, 1, 0) * deltaTime * speed;
+    }
+    if (glfwGetKey(window->getGLFWWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        position -= glm::vec3(0, 1, 0) * deltaTime * speed;
+    }
 
-//     glm::vec3 directionNoY = glm::vec3(
-//         sin(horizontalAngle),
-//         0,
-//         cos(horizontalAngle));
+    view = glm::lookAt(
+        position,                                                       // Camera is here
+        position + getLookingDirection(horizontalAngle, verticalAngle), // and looks here : at the same position, plus "direction"
+        glm::vec3(0, 1, 0)                                              // Head is up (set to 0,-1,0 to look upside-down)
+    );
 
-//     // Up vector
-//     glm::vec3 up = glm::cross(right, direction);
-
-//     // Move forward
-
-//     float FoV = initialFOV; // - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
-
-//     // Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-//     projection = glm::perspective(glm::radians(FoV), 4.0f / 3.0f, 0.1f, 100.0f);
-//     // Camera matrix
-//     view = glm::lookAt(
-//         position,             // Camera is here
-//         position + direction, // and looks here : at the same position, plus "direction"
-//         up                    // Head is up (set to 0,-1,0 to look upside-down)
-//     );
-
-//     // For the next frame, the "last time" will be "now"
-//     lastTime = currentTime;
-// }
+    lastTime = currentTime;
+}

@@ -4,12 +4,6 @@ using namespace mc;
 
 void Chunk::createMesh()
 {
-    int blockMeshSize = 0;
-    int waterMeshSize = 0;
-    glm::ivec3 start(0, 0, 0);
-
-    int numb = 0;
-
     for (int x = 0; x < Chunk::CHUNK_SIZE; x++)
     {
         for (int z = 0; z < Chunk::CHUNK_SIZE; z++)
@@ -25,52 +19,73 @@ void Chunk::createMesh()
                 }
 
                 if (blockType == BlockType::Water)
-                {
                     addCubeToMesh(glm::vec3(x, y, z), blockType, waterMesh, &waterMeshSize);
-                }
                 else
-                {
                     addCubeToMesh(glm::vec3(x, y, z), blockType, blockMesh, &blockMeshSize);
-                }
             }
         }
     }
 
+    // std::cout << isWaterBlock[0] << '\n';
+
+    // vertexArrayID = mc::createVAO();
+    // mc::bindVAO(vertexArrayID);
+
+    // vertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
+    // mc::bindVBO(vertexBuffer);
+    // mc::vboBuffer(vertexBuffer, sizeof(mesh->vertices[0]) * mesh->vertices.size(), &mesh->vertices[0]);
+
+    // uvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2, VBODataType::Float);
+    // mc::bindVBO(uvBuffer);
+    // mc::vboBuffer(uvBuffer, sizeof(mesh->uvCoordinates[0]) * mesh->uvCoordinates.size(), &mesh->uvCoordinates[0]);
+
+    // indicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1, VBODataType::UnsignedInt);
+    // mc::bindVBO(indicesBuffer);
+    // mc::vboBuffer(indicesBuffer, sizeof(mesh->indices[0]) * mesh->indices.size(), &mesh->indices[0]);
+
+    // normalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
+    // mc::bindVBO(normalsBuffer);
+    // mc::vboBuffer(normalsBuffer, sizeof(mesh->normals[0]) * mesh->normals.size(), &mesh->normals[0]);
+
+    // isWaterBlockBuffer = mc::createVBO(GL_ARRAY_BUFFER, 1, VBODataType::UnsignedInt8);
+    // mc::bindVBO(isWaterBlockBuffer);
+    // mc::vboBuffer(isWaterBlockBuffer, sizeof(isWaterBlock[0]) * isWaterBlock.size(), &isWaterBlock[0]);
+
     blockMeshVertexArrayID = mc::createVAO();
     mc::bindVAO(blockMeshVertexArrayID);
 
-    blockMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    blockMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
     mc::bindVBO(blockMeshVertexBuffer);
     mc::vboBuffer(blockMeshVertexBuffer, sizeof(blockMesh->vertices[0]) * blockMesh->vertices.size(), &blockMesh->vertices[0]);
 
-    blockMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2);
+    blockMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2, VBODataType::Float);
     mc::bindVBO(blockMeshUvBuffer);
     mc::vboBuffer(blockMeshUvBuffer, sizeof(blockMesh->uvCoordinates[0]) * blockMesh->uvCoordinates.size(), &blockMesh->uvCoordinates[0]);
 
-    blockMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1);
+    blockMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1, VBODataType::UnsignedInt);
     mc::bindVBO(blockMeshIndicesBuffer);
     mc::vboBuffer(blockMeshIndicesBuffer, sizeof(blockMesh->indices[0]) * blockMesh->indices.size(), &blockMesh->indices[0]);
 
-    blockMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    blockMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
     mc::bindVBO(blockMeshNormalsBuffer);
     mc::vboBuffer(blockMeshNormalsBuffer, sizeof(blockMesh->normals[0]) * blockMesh->normals.size(), &blockMesh->normals[0]);
 
     waterMeshVertexArrayID = mc::createVAO();
     mc::bindVAO(waterMeshVertexArrayID);
 
-    waterMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    waterMeshVertexBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
     mc::bindVBO(waterMeshVertexBuffer);
     mc::vboBuffer(waterMeshVertexBuffer, sizeof(waterMesh->vertices[0]) * waterMesh->vertices.size(), &waterMesh->vertices[0]);
 
-    waterMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2);
+    waterMeshUvBuffer = mc::createVBO(GL_ARRAY_BUFFER, 2, VBODataType::Float);
     mc::bindVBO(waterMeshUvBuffer);
     mc::vboBuffer(waterMeshUvBuffer, sizeof(waterMesh->uvCoordinates[0]) * waterMesh->uvCoordinates.size(), &waterMesh->uvCoordinates[0]);
 
-    waterMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1);
+    waterMeshIndicesBuffer = mc::createVBO(GL_ELEMENT_ARRAY_BUFFER, 1, VBODataType::UnsignedInt);
     mc::bindVBO(waterMeshIndicesBuffer);
     mc::vboBuffer(waterMeshIndicesBuffer, sizeof(waterMesh->indices[0]) * waterMesh->indices.size(), &waterMesh->indices[0]);
 
-    waterMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3);
+    waterMeshNormalsBuffer = mc::createVBO(GL_ARRAY_BUFFER, 3, VBODataType::Float);
     mc::bindVBO(waterMeshNormalsBuffer);
     mc::vboBuffer(waterMeshNormalsBuffer, sizeof(waterMesh->normals[0]) * waterMesh->normals.size(), &waterMesh->normals[0]);
 }
@@ -97,8 +112,91 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     glm::vec2 uvTopLeft(u1, 1);
     glm::vec2 uvTopRight(u2, 1);
 
-    //Top face
-    if (cubePos.y == Chunk::CHUNK_HEIGHT - 1 || getBlock(glm::vec3(cubePos.x, cubePos.y + 1, cubePos.z)) == BlockType::Air)
+    int cubeWorldX = position.x * CHUNK_SIZE + cubePos.x;
+    int cubeWorldZ = position.y * CHUNK_SIZE + cubePos.z;
+
+    // BlockType topBlockType = world->getBlock(glm::vec3(cubeWorldX, cubePos.y + 1, cubeWorldZ));
+    // BlockType bottomBlockType = world->getBlock(glm::vec3(cubeWorldX, cubePos.y - 1, cubeWorldZ));
+    // BlockType leftBlockType = world->getBlock(glm::vec3(cubeWorldX - 1, cubePos.y, cubeWorldZ));
+    // BlockType rightBlockType = world->getBlock(glm::vec3(cubeWorldX + 1, cubePos.y, cubeWorldZ));
+    // BlockType frontBlockType = world->getBlock(glm::vec3(cubeWorldX, cubePos.y, cubeWorldZ + 1));
+    // BlockType backBlockType = world->getBlock(glm::vec3(cubeWorldX, cubePos.y, cubeWorldZ - 1));
+
+    BlockType topBlockType = getBlock(glm::vec3(cubePos.x, cubePos.y + 1, cubePos.z));
+    BlockType bottomBlockType = getBlock(glm::vec3(cubePos.x, cubePos.y - 1, cubePos.z));
+
+    BlockType leftBlockType = getBlock(glm::vec3(cubePos.x - 1, cubePos.y, cubePos.z));
+    if (cubePos.x == 0)
+    {
+        Chunk *neighbourChunk = world->getChunk(glm::ivec2(position.x - 1, position.y));
+        if (neighbourChunk)
+        {
+            leftBlockType = neighbourChunk->getBlock(glm::ivec3(CHUNK_SIZE - 1, cubePos.y, cubePos.z));
+        }
+    }
+    BlockType rightBlockType = getBlock(glm::vec3(cubePos.x + 1, cubePos.y, cubePos.z));
+    if (cubePos.x == CHUNK_SIZE - 1)
+    {
+        Chunk *neighbourChunk = world->getChunk(glm::ivec2(position.x + 1, position.y));
+        if (neighbourChunk)
+        {
+            rightBlockType = neighbourChunk->getBlock(glm::ivec3(0, cubePos.y, cubePos.z));
+        }
+    }
+    BlockType frontBlockType = getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z + 1));
+    if (cubePos.z == CHUNK_SIZE - 1)
+    {
+        Chunk *neighbourChunk = world->getChunk(glm::ivec2(position.x, position.y + 1));
+        if (neighbourChunk)
+        {
+            frontBlockType = neighbourChunk->getBlock(glm::ivec3(0, cubePos.y, cubePos.z));
+        }
+    }
+    BlockType backBlockType = getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z - 1));
+    if (cubePos.z == 0)
+    {
+        Chunk *neighbourChunk = world->getChunk(glm::ivec2(position.x, position.y - 1));
+        if (neighbourChunk)
+        {
+            backBlockType = neighbourChunk->getBlock(glm::ivec3(CHUNK_SIZE - 1, cubePos.y, cubePos.z));
+        }
+    }
+
+    if (type == BlockType::Water)
+    {
+        //! Special case
+        if (topBlockType == BlockType::Air)
+        {
+            mesh->indices.push_back(*meshSize + 1); // top left
+            mesh->indices.push_back(*meshSize);     // bottom left
+            mesh->indices.push_back(*meshSize + 2); // bottom right
+
+            mesh->indices.push_back(*meshSize + 1); // top left
+            mesh->indices.push_back(*meshSize + 2); // bottom right
+            mesh->indices.push_back(*meshSize + 3); // top right
+
+            mesh->addVertex(nx, py, pz); // front top left
+            mesh->addVertex(nx, py, nz); // back top left
+            mesh->addVertex(px, py, pz); // front top right
+            mesh->addVertex(px, py, nz); // back top right
+
+            mesh->addUV(uvBottomLeft);
+            mesh->addUV(uvTopLeft);
+            mesh->addUV(uvBottomRight);
+            mesh->addUV(uvTopRight);
+
+            mesh->addNormal(0.0, 1.0, 0.0);
+            mesh->addNormal(0.0, 1.0, 0.0);
+            mesh->addNormal(0.0, 1.0, 0.0);
+            mesh->addNormal(0.0, 1.0, 0.0); // Top Side
+
+            *meshSize += 4;
+        }
+        return;
+    }
+
+    // Top face
+    if (cubePos.y == Chunk::CHUNK_HEIGHT - 1 || topBlockType == BlockType::Air || topBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize + 1); // top left
         mesh->indices.push_back(*meshSize);     // bottom left
@@ -145,7 +243,7 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 
     //Bottom face
-    if (cubePos.y == 0 || getBlock(glm::vec3(cubePos.x, cubePos.y - 1, cubePos.z)) == BlockType::Air)
+    if ((cubePos.y == 0 && type != BlockType::Water) || bottomBlockType == BlockType::Air || bottomBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize + 3);
         mesh->indices.push_back(*meshSize + 1);
@@ -172,7 +270,7 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 
     //Front face
-    if (cubePos.z == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z + 1)) == BlockType::Air)
+    if ((cubePos.z == Chunk::CHUNK_SIZE - 1 && type != BlockType::Water) || frontBlockType == BlockType::Air || frontBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize);
         mesh->indices.push_back(*meshSize + 2);
@@ -200,7 +298,7 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 
     //Back face
-    if (cubePos.z == 0 || getBlock(glm::vec3(cubePos.x, cubePos.y, cubePos.z - 1)) == BlockType::Air)
+    if ((cubePos.z == 0 && type != BlockType::Water) || backBlockType == BlockType::Air || backBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize + 2);
         mesh->indices.push_back(*meshSize + 3);
@@ -228,7 +326,7 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 
     //Right face
-    if (cubePos.x == Chunk::CHUNK_SIZE - 1 || getBlock(glm::vec3(cubePos.x + 1, cubePos.y, cubePos.z)) == BlockType::Air)
+    if ((cubePos.x == Chunk::CHUNK_SIZE - 1 && type != BlockType::Water) || rightBlockType == BlockType::Air || rightBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize + 2);
         mesh->indices.push_back(*meshSize + 3);
@@ -256,7 +354,7 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 
     //Left face
-    if (cubePos.x == 0 || getBlock(glm::vec3(cubePos.x - 1, cubePos.y, cubePos.z)) == BlockType::Air)
+    if ((cubePos.x == 0 && type != BlockType::Water) || leftBlockType == BlockType::Air || leftBlockType == BlockType::Water)
     {
         mesh->indices.push_back(*meshSize);
         mesh->indices.push_back(*meshSize + 2);
@@ -284,7 +382,11 @@ void Chunk::addCubeToMesh(glm::vec3 cubePos, BlockType type, Mesh *mesh, int *me
     }
 }
 
-void Chunk::render(Renderer *renderer)
+// void Chunk::render(Renderer *renderer)
+// {
+// }
+
+void Chunk::renderBlockMesh(Renderer *renderer)
 {
     modelMatrix[3][0] = position.x * CHUNK_SIZE;
     modelMatrix[3][2] = position.y * CHUNK_SIZE;
@@ -300,8 +402,14 @@ void Chunk::render(Renderer *renderer)
     blockMeshEntity->setVBOs(blockMeshVBOs);
 
     renderer->render(blockMeshEntity, ShaderType::RegularBlock);
+}
+
+void Chunk::renderWaterMesh(Renderer *renderer, GLuint reflectionTexture, glm::vec3 camPos)
+{
 
     Entity *waterMeshEntity = new Entity(waterMesh, &blockatlasTexture, &modelMatrix);
+    waterMeshEntity->setTestTexture(reflectionTexture);
+    waterMeshEntity->cameraPos = camPos;
 
     waterMeshEntity->setVAO(waterMeshVertexArrayID);
 
@@ -313,58 +421,4 @@ void Chunk::render(Renderer *renderer)
     waterMeshEntity->setVBOs(waterMeshVBOs);
 
     renderer->render(waterMeshEntity, ShaderType::WaterBlock);
-
-    // GLuint textureID = glGetUniformLocation(blockMeshShader->getProgramID(), "textureSampler");
-    // GLuint modelID = glGetUniformLocation(blockMeshShader->getProgramID(), "model");
-
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, blockatlasTexture.handle);
-    // glUniform1i(textureID, 0);
-
-    // modelMatrix[3][0] = position.x * CHUNK_SIZE;
-    // modelMatrix[3][2] = position.y * CHUNK_SIZE;
-
-    // glUniformMatrix4fv(modelID, 1, GL_FALSE, &modelMatrix[0][0]);
-
-    // mc::bindVAO(blockMeshVertexArrayID);
-    // mc::bindVBO(blockMeshVertexBuffer);
-    // mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
-
-    // mc::bindVBO(blockMeshUvBuffer);
-    // mc::vaoEnable(1, 2, GL_FLOAT, 0, 0);
-
-    // mc::bindVBO(blockMeshNormalsBuffer);
-    // mc::vaoEnable(2, 3, GL_FLOAT, 0, 0);
-
-    // glDrawElements(
-    //     GL_TRIANGLES,
-    //     blockMesh->indices.size(),
-    //     GL_UNSIGNED_INT,
-    //     (void *)0);
-
-    // glDisableVertexAttribArray(0);
-    // glDisableVertexAttribArray(1);
-    // glDisableVertexAttribArray(2);
-
-    // glUseProgram(waterMeshShader->getProgramID());
-
-    // mc::bindVAO(waterMeshVertexArrayID);
-    // mc::bindVBO(waterMeshVertexBuffer);
-    // mc::vaoEnable(0, 3, GL_FLOAT, 0, 0);
-
-    // mc::bindVBO(waterMeshUvBuffer);
-    // mc::vaoEnable(1, 2, GL_FLOAT, 0, 0);
-
-    // mc::bindVBO(waterMeshNormalsBuffer);
-    // mc::vaoEnable(2, 3, GL_FLOAT, 0, 0);
-
-    // glDrawElements(
-    //     GL_TRIANGLES,
-    //     waterMesh->indices.size(),
-    //     GL_UNSIGNED_INT,
-    //     (void *)0);
-
-    // glDisableVertexAttribArray(0);
-    // glDisableVertexAttribArray(1);
-    // glDisableVertexAttribArray(2);
 }

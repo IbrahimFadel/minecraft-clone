@@ -44,6 +44,8 @@ void Renderer::renderEntityWithWaterBlockShader(Entity *entity)
     GLuint modelID = glGetUniformLocation(programID, "model");
     // FS
     GLuint textureID = glGetUniformLocation(programID, "textureSampler");
+    GLuint reflectionTextureID = glGetUniformLocation(programID, "reflectionTextureSampler");
+    GLuint cameraPosID = glGetUniformLocation(programID, "cameraPos");
     // GLuint lightPosID = glGetUniformLocation(programID, "lightPositionWorldspace");
 
     // VS
@@ -54,7 +56,11 @@ void Renderer::renderEntityWithWaterBlockShader(Entity *entity)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, entity->getTexture()->handle);
     glUniform1i(textureID, 0);
-    // glUniform3f(lightPosID, 0, 0, 0);
+
+    // glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, entity->getTestTexture());
+    glUniform1i(textureID, 0);
+    glUniform3f(cameraPosID, entity->cameraPos.x, entity->cameraPos.y, entity->cameraPos.z);
 
     GLuint vao = entity->getVAO();
     auto vbos = entity->getVBOs();
@@ -66,7 +72,7 @@ void Renderer::renderEntityWithWaterBlockShader(Entity *entity)
         if (vbo.type == GL_ARRAY_BUFFER)
         {
             mc::bindVBO(vbo);
-            mc::vaoEnable(i, vbo.size, GL_FLOAT, 0, 0);
+            mc::vaoEnable(i, vbo.size, vbo.dataType, 0, 0);
             i++;
         }
     }
@@ -117,7 +123,7 @@ void Renderer::renderEntityWithRegularBlockShader(Entity *entity)
         if (vbo.type == GL_ARRAY_BUFFER)
         {
             mc::bindVBO(vbo);
-            mc::vaoEnable(i, vbo.size, GL_FLOAT, 0, 0);
+            mc::vaoEnable(i, vbo.size, vbo.dataType, 0, 0);
             i++;
         }
     }

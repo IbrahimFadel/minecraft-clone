@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 vertexPositionModelspace;
 layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 vertexNormalModelspace;
+layout(location = 3) in uint aisWaterBlock;
 
 out vec2 UV;
 out vec3 positionWorldspace;
@@ -32,5 +33,15 @@ void main(){
 	
 	normalCameraspace = ( view * model * vec4(vertexNormalModelspace,0)).xyz;
 
+
+	vec2 vertexUVs[4] = vec2[4](
+		vec2(0, 0),
+		vec2(1, 0),
+		vec2(0, 1),
+		vec2(1, 1)
+	);
+	
 	UV = vertexUV;
+
+	isWaterBlock = aisWaterBlock;
 }

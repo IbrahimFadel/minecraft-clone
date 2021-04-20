@@ -76,7 +76,7 @@ namespace mc
                 // noise.SetFrequency(pow(lacunarity, i));
                 // amplitude = pow(persistance, i);
                 float y = noise.GetNoise((float)position.x, (float)position.y);
-                float finalY = (((y + 1) / 2.0) * ((amplitude * 20) - minHeight));
+                float finalY = (((y + 1) / 2.0) * ((amplitude * 30) - minHeight));
                 noiseHeight += finalY;
                 // std::cout << y << ' ' << finalY << ' ' << noiseHeight << '\n';
 
@@ -90,6 +90,9 @@ namespace mc
         void generateChunk(glm::ivec2 position);
         void render(Renderer *renderer);
         Chunk *getChunk(glm::ivec2 position);
+        BlockType getBlock(glm::ivec3 position);
+
+        std::unordered_map<glm::ivec2, Chunk *, KeyFuncs, KeyFuncs> getChunks() { return chunks; }
     };
 
 }; // namespace mc

@@ -1,10 +1,11 @@
 #include "vbo.h"
 
-mc::VBO mc::createVBO(GLint type, int size)
+mc::VBO mc::createVBO(GLint type, int size, VBODataType dataType)
 {
     mc::VBO vbo;
     vbo.type = type;
     vbo.size = size;
+    vbo.dataType = dataType;
     glGenBuffers(1, &vbo.handle);
     return vbo;
 }

@@ -23,7 +23,6 @@ namespace mc
 
         void use();
         void uniform2f(const char *uniformName, float v1, float v2);
-        void uniform3f(const char *uniformName, float v1, float v2, float v3);
         void uniform1i(const char *uniformName, int v);
         void uniformMat4f(const char *uniformName, glm::mat4);
     };

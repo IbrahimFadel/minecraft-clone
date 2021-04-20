@@ -87,11 +87,6 @@ void Shader::uniform2f(const char *uniformName, float v1, float v2)
     glUniform2f(glGetUniformLocation(program, uniformName), v1, v2);
 }
 
-void Shader::uniform3f(const char *uniformName, float v1, float v2, float v3)
-{
-    glUniform3f(glGetUniformLocation(program, uniformName), v1, v2, v3);
-}
-
 void Shader::uniform1i(const char *uniformName, int v)
 {
     glUniform1i(glGetUniformLocation(program, uniformName), v);

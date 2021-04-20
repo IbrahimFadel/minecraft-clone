@@ -9,7 +9,7 @@ namespace mc
     GLuint createVAO();
     void bindVAO(GLuint vao);
     void destroyVAO(GLuint vao);
-    void vaoEnable(GLuint index, GLint size, GLenum type, GLsizei stride, size_t offset);
+    void vaoEnable(GLuint index, GLint size, VBODataType dataType, GLsizei stride, size_t offset);
 }; // namespace mc
 
 #endif

@@ -70,6 +70,8 @@ namespace mc
     private:
         World *world;
         BlockType blocks[CHUNK_SIZE][CHUNK_HEIGHT][CHUNK_SIZE] = {BlockType::Air};
+        // Mesh *mesh = new Mesh();
+        // int meshSize = 0;
         Mesh *blockMesh = new Mesh();
         Mesh *waterMesh = new Mesh();
         int blockMeshSize = 0;
@@ -77,6 +79,14 @@ namespace mc
 
         glm::ivec2 position = glm::ivec2(0, 0);
         glm::mat4 modelMatrix = glm::mat4(1.0);
+
+        // GLuint vertexArrayID;
+        // mc::VBO vertexBuffer;
+        // mc::VBO uvBuffer;
+        // mc::VBO indicesBuffer;
+        // mc::VBO normalsBuffer;
+        // mc::VBO isWaterBlockBuffer;
+        // std::vector<uint8_t> isWaterBlock; // can't do bool because... doesnt work :(((
 
         GLuint blockMeshVertexArrayID;
         mc::VBO blockMeshVertexBuffer;
@@ -99,7 +109,9 @@ namespace mc
 
     public:
         void update();
-        void render(Renderer *renderer);
+        // void render(Renderer *renderer);
+        void renderBlockMesh(Renderer *renderer);
+        void renderWaterMesh(Renderer *renderer, GLuint reflectionTexture, glm::vec3 camPos);
         void createMesh();
 
         glm::ivec2 getPosition() { return position; }

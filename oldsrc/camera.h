@@ -27,18 +27,9 @@ namespace mc
             glm::vec3(0, 1, 0));
 
         glm::vec3 position = glm::vec3(0, 32, 0);
-        glm::vec3 direction;
-
-        double horizontalAngle, verticalAngle;
-        double mouseX, mouseY;
-        double sensitivity = 0.05;
-        float deltaTime;
-        float speed = 25;
 
     public:
         Camera(std::unique_ptr<mc::Window> &window) : window(window){};
-
-        void handleMovement();
 
         glm::vec3 getRightVector(float ha)
         {
